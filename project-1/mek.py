@@ -5,7 +5,7 @@ from os.path import join
 # the name of your project
 name = 'project-1' 
 # the .c file containing `main`
-main = join('arduino', 'main.cpp')
+main = 'project-1.cpp'
 # the c compiler configuration to use (gcc_clang, avr_gcc, or emscripten)
 cc = avr_gcc(hardware='atmega2560', programmer='wiring', baud='115200')
 # any libraries to load

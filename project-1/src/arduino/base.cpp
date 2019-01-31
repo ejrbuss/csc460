@@ -18,6 +18,7 @@
 */
 
 #include <Arduino.h>
+#include <Base.h>
 
 // Declared weak in Arduino.h to allow user redefinitions.
 int atexit(void (* /*func*/ )()) { return 0; }
@@ -30,22 +31,12 @@ void initVariant() { }
 void setupUSB() __attribute__((weak));
 void setupUSB() { }
 
-int main(void)
-{
-	init();
-
+void init_arduino() {
+  init();
 	initVariant();
 
 #if defined(USBCON)
 	USBDevice.attach();
 #endif
 
-	setup();
-
-	for (;;) {
-		loop();
-		if (serialEventRun) serialEventRun();
-	}
-
-	return 0;
 }

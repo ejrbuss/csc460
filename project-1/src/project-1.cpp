@@ -1,3 +1,4 @@
+#include <Base.h>
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
@@ -20,7 +21,9 @@ void ISR_TOGGLE_LASER() {
     interrupts();   // TODO: restore interrupt flags instead
 }
 
-void setup() {
+int main() {
+    init_arduino();
+
     // Set pin modes
     pinMode(JOY_SW, INPUT_PULLUP);
     pinMode(LED, OUTPUT);
@@ -32,9 +35,9 @@ void setup() {
 
     // Configure interrupts
     attachInterrupt(digitalPinToInterrupt(JOY_SW), ISR_TOGGLE_LASER, CHANGE);
-}
 
-void loop() {
-    digitalWrite(LED, buttonState);
-    digitalWrite(LASER, buttonState);
+    for(;;) {
+        digitalWrite(LED, buttonState);
+        digitalWrite(LASER, buttonState);
+    }
 }
