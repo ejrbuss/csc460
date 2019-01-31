@@ -4,6 +4,7 @@
 
 #define BAUD    9600
 #define LED     13
+#define LASER   5
 #define JOY_SW  2    // make sure this is a digital pin that works for interrupts
 
 volatile bool buttonState = LOW;
@@ -20,14 +21,20 @@ void ISR_TOGGLE_LASER() {
 }
 
 void setup() {
+    // Set pin modes
     pinMode(JOY_SW, INPUT_PULLUP);
     pinMode(LED, OUTPUT);
+    pinMode(LASER, OUTPUT);
 
-    digitalWrite(LED, LOW);     // initial value
+    // Initialize output pins
+    digitalWrite(LED, LOW);
+    digitalWrite(LASER, LOW);
 
+    // Configure interrupts
     attachInterrupt(digitalPinToInterrupt(JOY_SW), ISR_TOGGLE_LASER, CHANGE);
 }
 
 void loop() {
     digitalWrite(LED, buttonState);
+    digitalWrite(LASER, buttonState);
 }
