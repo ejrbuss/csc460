@@ -2,49 +2,32 @@
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
-#define LED 13
-#define MIN 0
-#define MAX 255
-#define JOY_SW 2
-#define BAUD 9600
+#define BAUD    9600
+#define LED     13
+#define JOY_SW  2    // make sure this is a digital pin that works for interrupts
 
-volatile bool on = false;
-volatile bool isr_triggered = false;
+volatile bool buttonState = LOW;
+volatile unsigned long lastTime = 0;
+volatile unsigned long debounceDelay = 30;
 
 void ISR_TOGGLE_LASER() {
     noInterrupts();
-    isr_triggered = true;
-    Serial.println("IN ISR!!");
-    if (on) {
-        digitalWrite(LED, LOW);
-        on = false;
-    } else {
-        digitalWrite(LED, HIGH);
-        on = true;
+    if ((millis() - lastTime) > debounceDelay) {
+        buttonState = !buttonState;
     }
-    interrupts();
+    lastTime = millis();
+    interrupts();   // TODO: restore interrupt flags instead
 }
 
 void setup() {
     pinMode(JOY_SW, INPUT_PULLUP);
-    Serial.begin(BAUD);
+    pinMode(LED, OUTPUT);
 
-    attachInterrupt(digitalPinToInterrupt(JOY_SW), ISR_TOGGLE_LASER, FALLING);
+    digitalWrite(LED, LOW);     // initial value
 
-    for (;;) {
-        loop();
-    }
+    attachInterrupt(digitalPinToInterrupt(JOY_SW), ISR_TOGGLE_LASER, CHANGE);
 }
 
 void loop() {
-    if (isr_triggered) {
-        noInterrupts();
-        isr_triggered = false;
-        Serial.println("delaying..");
-        delay(1000);
-        Serial.println("enabling interrupts again");
-        Serial.println();
-        interrupts();
-    }
-
+    digitalWrite(LED, buttonState);
 }
