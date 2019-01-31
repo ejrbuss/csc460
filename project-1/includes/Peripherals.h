@@ -8,6 +8,17 @@
 #define PERIPHERALS_H
 
 //
+// LASER
+//
+
+#define LASER_PIN 5
+
+void init_laser();
+void toggle_laser();
+void set_laser(int on);
+int laser_on();
+
+//
 // LCD
 //
 
@@ -33,6 +44,7 @@ LiquidCrystal init_lcd();
 
 #define STICK_U_PIN_X 8
 #define STICK_U_PIN_Y 9
+#define STICK_U_PIN_SW 10
 
 #define STICK_U_DEADZONE Q78(2)
 #define STICK_U_OFFSET_X 510
@@ -46,6 +58,7 @@ LiquidCrystal init_lcd();
 
 int sample_stick_u_x();
 int sample_stick_u_y();
+void stick_u_on_switch(void (*isr)());
 
 // 
 // STICK_M
@@ -53,6 +66,7 @@ int sample_stick_u_y();
 
 #define STICK_M_PIN_X 8
 #define STICK_M_PIN_Y 9
+#define STICK_M_PIN_SW 10
 
 #define STICK_M_DEADZONE Q78(100)
 #define STICK_M_OFFSET_X 506
@@ -66,6 +80,7 @@ int sample_stick_u_y();
 
 int sample_stick_m_x();
 int sample_stick_m_y();
+void stick_m_on_switch(void (*isr)());
 
 //
 // SERVO_PAN
@@ -90,5 +105,9 @@ int servo_pan_position();
 
 void map_servo_tilt(int value, int min_value, int max_value);
 int servo_tilt_position();
+
+//
+// LIGHT_SENSOR
+//
 
 #endif /* PERIPHERALS_H */

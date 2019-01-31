@@ -30,6 +30,11 @@ int sample_stick_u_y() {
     return Q78_to_int(rolling_y);
 }
 
+void stick_u_on_switch(void (*isr)()) {
+    pinMode(STICK_U_PIN_SW, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(STICK_U_PIN_SW), isr, CHANGE);
+}
+
 int sample_stick_m_x() {
     static Q78_t rolling_x = Q78(0);
     Q78_t x = Q78((analogRead(STICK_M_PIN_X) - STICK_M_OFFSET_X) / STICK_SCALE);
@@ -52,4 +57,9 @@ int sample_stick_m_y() {
     }
     rolling_y = Q78_lpf(y, rolling_y, STICK_LFP_FACTOR);
     return Q78_to_int(rolling_y);
+}
+
+void stick_m_on_switch(void (*isr)()) {
+    pinMode(STICK_M_PIN_SW, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(STICK_M_PIN_SW), isr, CHANGE);
 }
