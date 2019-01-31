@@ -1,10 +1,29 @@
 #include "Peripherals.h"
 
+//
+// LASER
+//
+
+void init_laser() {
+    pinMode(LASER_PIN, OUTPUT);
+    digitalWrite(LASER, LOW);
+}
+
+
+
+//
+// LCD
+//
+
 LiquidCrystal init_lcd() {
     LiquidCrystal lcd = LiquidCrystal(LCD_RS, LCD_EN, LCD_DB4, LCD_DB5, LCD_DB6, LCD_DB7);
     lcd.begin(16, 2);
     return lcd;
 }
+
+//
+// STICK_U
+//
 
 int sample_stick_u_x() {
     static Q78_t rolling_x = Q78(0);
@@ -34,6 +53,10 @@ void stick_u_on_switch(void (*isr)()) {
     pinMode(STICK_U_PIN_SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(STICK_U_PIN_SW), isr, CHANGE);
 }
+
+//
+// STICK_M
+//
 
 int sample_stick_m_x() {
     static Q78_t rolling_x = Q78(0);

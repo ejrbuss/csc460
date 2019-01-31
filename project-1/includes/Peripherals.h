@@ -66,7 +66,9 @@ void stick_u_on_switch(void (*isr)());
 
 #define STICK_M_PIN_X 8
 #define STICK_M_PIN_Y 9
-#define STICK_M_PIN_SW 10
+#define STICK_M_PIN_SW 2
+
+#define STICK_M_SW_DELAY 30
 
 #define STICK_M_DEADZONE Q78(100)
 #define STICK_M_OFFSET_X 506

@@ -3,18 +3,15 @@
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
-#define BAUD    9600
-#define LED     13
-#define LASER   5
-#define JOY_SW  2    // make sure this is a digital pin that works for interrupts
+#define BAUD 9600
+#define LED  13
 
 volatile bool buttonState = LOW;
 volatile unsigned long lastTime = 0;
-volatile unsigned long debounceDelay = 30;
 
 void ISR_TOGGLE_LASER() {
     noInterrupts();
-    if ((millis() - lastTime) > debounceDelay) {
+    if ((millis() - lastTime) > STICK_M_SW_DELAY) {
         buttonState = !buttonState;
     }
     lastTime = millis();
@@ -23,21 +20,17 @@ void ISR_TOGGLE_LASER() {
 
 int main() {
     init_arduino();
+    init_laser();
 
-    // Set pin modes
-    pinMode(JOY_SW, INPUT_PULLUP);
+    // Initialize LED
     pinMode(LED, OUTPUT);
-    pinMode(LASER, OUTPUT);
-
-    // Initialize output pins
     digitalWrite(LED, LOW);
-    digitalWrite(LASER, LOW);
 
-    // Configure interrupts
-    attachInterrupt(digitalPinToInterrupt(JOY_SW), ISR_TOGGLE_LASER, CHANGE);
+    // Configure joystick switch interrupt
+    stick_m_on_switch(ISR_TOGGLE_LASER);
 
     for(;;) {
         digitalWrite(LED, buttonState);
-        digitalWrite(LASER, buttonState);
+        digitalWrite(LASER_PIN, buttonState);
     }
 }
