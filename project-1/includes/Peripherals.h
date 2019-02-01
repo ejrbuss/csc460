@@ -114,7 +114,13 @@ void init_servo_tilt();
 void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd);
 
 //
-// LIGHT_SENSOR
+// PHOTOCELL
 //
+
+#define PHOTO_PIN 13
+
+#define PHOTO_HIT_THRESHOLD 1000
+
+void init_photocell();
 
 #endif /* PERIPHERALS_H */

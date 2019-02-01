@@ -28,7 +28,7 @@ int sample_stick_u_x() {
     static Q78_t sample_x  = Q78(0);
     sample_x  = Q78((analogRead(STICK_U_PIN_X) - STICK_U_OFFSET_X) / STICK_SCALE);
     rolling_x = Q78_lpf(sample_x, rolling_x, STICK_LFP_FACTOR);
-    int x     = Q78_to_int(rolling_x); 
+    int x     = Q78_to_int(rolling_x);
     if (x < 0) {
         x = clamp(x + STICK_U_DEADZONE, STICK_U_MIN_X, 0);
     } else if (x > 0) {
@@ -42,7 +42,7 @@ int sample_stick_u_y() {
     static Q78_t sample_y  = Q78(0);
     sample_y  = Q78((analogRead(STICK_U_PIN_Y) - STICK_U_OFFSET_Y) / STICK_SCALE);
     rolling_y = Q78_lpf(sample_y, rolling_y, STICK_LFP_FACTOR);
-    int y     = Q78_to_int(rolling_y); 
+    int y     = Q78_to_int(rolling_y);
     if (y < 0) {
         y = clamp(y + STICK_U_DEADZONE, STICK_U_MIN_Y, 0);
     } else if (y > 0) {
@@ -87,6 +87,14 @@ int sample_stick_m_y() {
 void stick_m_on_switch(void (*isr)()) {
     pinMode(STICK_M_PIN_SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(STICK_M_PIN_SW), isr, CHANGE);
+}
+
+//
+// PHOTOCELL
+//
+
+void init_photocell() {
+    pinMode(PHOTO_PIN, INPUT);
 }
 
 //
