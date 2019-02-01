@@ -84,3 +84,11 @@ void stick_m_on_switch(void (*isr)()) {
     pinMode(STICK_M_PIN_SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(STICK_M_PIN_SW), isr, CHANGE);
 }
+
+//
+// PHOTOCELL
+//
+
+void init_photocell() {
+    pinMode(PHOTO_PIN, INPUT);
+}
