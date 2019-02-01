@@ -6,10 +6,8 @@
 
 void init_laser() {
     pinMode(LASER_PIN, OUTPUT);
-    digitalWrite(LASER, LOW);
+    digitalWrite(LASER_PIN, LOW);
 }
-
-
 
 //
 // LCD
