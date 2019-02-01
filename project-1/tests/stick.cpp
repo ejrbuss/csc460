@@ -17,13 +17,9 @@ int main() {
             lcd.setCursor(0, 0);
             lcd.print("x: ");
             lcd.print(x);
-            lcd.print(" anlg:");
-            lcd.print((analogRead(STICK_U_PIN_X) - STICK_U_OFFSET_X) / STICK_SCALE);
             lcd.setCursor(0, 1);
             lcd.print("y: ");
             lcd.print(y);
-            lcd.print(" anlg:");
-            lcd.print((analogRead(STICK_U_PIN_Y) - STICK_U_OFFSET_Y) / STICK_SCALE);
         }
     }
 }
