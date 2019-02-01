@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Servo.h"
 #include "Compute.h"
 #include "LiquidCrystal.h"
 
@@ -46,15 +47,15 @@ LiquidCrystal init_lcd();
 #define STICK_U_PIN_Y 9
 #define STICK_U_PIN_SW 10
 
-#define STICK_U_DEADZONE Q78(2)
-#define STICK_U_OFFSET_X 510
-#define STICK_U_OFFSET_Y 510
+#define STICK_U_OFFSET_X 506
+#define STICK_U_OFFSET_Y 506
+#define STICK_U_DEADZONE (50 / STICK_SCALE)
 
-#define STICK_U_MAX_X    (Q78(STICK_U_OFFSET_X / STICK_SCALE) - STICK_U_DEADZONE)
+#define STICK_U_MAX_X    ((STICK_U_OFFSET_X / STICK_SCALE) - (2 * STICK_U_DEADZONE))
 #define STICK_U_MIN_X    (-STICK_U_MAX_X)
 
-#define STICK_U_MAX_Y    (Q78(STICK_U_OFFSET_X / STICK_SCALE) - STICK_U_DEADZONE)
-#define STICK_U_MIN_Y    (-STICK_U_MAX_X)
+#define STICK_U_MAX_Y    ((STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
+#define STICK_U_MIN_Y    (-STICK_U_MAX_Y)
 
 int sample_stick_u_x();
 int sample_stick_u_y();
@@ -70,9 +71,9 @@ void stick_u_on_switch(void (*isr)());
 
 #define STICK_M_SW_DELAY 30
 
-#define STICK_M_DEADZONE Q78(100)
 #define STICK_M_OFFSET_X 506
 #define STICK_M_OFFSET_Y 506
+#define STICK_M_DEADZONE (100 / STICK_SCALE)
 
 #define STICK_M_MAX_X    (Q78(STICK_U_OFFSET_X / STICK_SCALE) - STICK_U_DEADZONE)
 #define STICK_M_MIN_X    (-STICK_U_MAX_X)
@@ -88,25 +89,29 @@ void stick_m_on_switch(void (*isr)());
 // SERVO_PAN
 //
 
-#define SERVO_PAN_TOP    2000
-#define SERVO_PAN_BOTTOM 1000
-#define SERVO_PAN_CENTER 1500
-#define SERVO_PAN_DELAY  5
+#define SERVO_PAN_PIN       13
+#define SERVO_PAN_TOP       2000
+#define SERVO_PAN_BOTTOM    500
+#define SERVO_PAN_CENTER    1500
+#define SERVO_PAN_MAX_SPEED 7
+#define SERVO_PAN_DELAY     5
 
+void init_servo_pan();
 void map_servo_pan(int value, int min_value, int max_value);
-int servo_pan_position();
 
 // 
 // SERVO_TILT
 //
 
-#define SERVO_TILT_TOP    2000
-#define SERVO_TILT_BOTTOM 1000
-#define SERVO_TILT_CENTER 1500
-#define SERVO_TILT_DELAY  5
+#define SERVO_TILT_PIN       12
+#define SERVO_TILT_TOP       1250
+#define SERVO_TILT_BOTTOM    750
+#define SERVO_TILT_CENTER    1000
+#define SERVO_TILT_MAX_SPEED 5
+#define SERVO_TILT_DELAY     5
 
-void map_servo_tilt(int value, int min_value, int max_value);
-int servo_tilt_position();
+void init_servo_tilt();
+void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd);
 
 //
 // PHOTOCELL

@@ -10,8 +10,11 @@ cc = avr_gcc(hardware='atmega2560', programmer='wiring', baud='115200')
 libs = []
 # additional compiler flags
 flags = [
-    # define clock rate
+    # definitions
     '-DF_CPU=16000000L',
+    '-DARDUINO=10808',
+    '-DARDUINO_AVR_MEGA2560',
+    '-DARDUINO_ARCH_AVR',
     # Need optimizations for delay to work 
     '-Os',
     # Reduce application size and optimize

@@ -11,7 +11,7 @@
 // Q7.8
 typedef s16 Q78_t;
 
-#define Q78(n) ((Q78_t) (n * Q78_SCALE_FACTOR))
+#define Q78(n) ((Q78_t) ((n) * Q78_SCALE_FACTOR))
 
 int Q78_to_int(Q78_t q);
 float Q78_to_float(Q78_t q);
