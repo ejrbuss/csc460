@@ -28,12 +28,13 @@ void receive() {
     if (current_message == NULL) {
         u8 * buffer = &buffer_message;
         // Read each byte of message 1 at a time
-        whilee (Serial1.available()) {
+        while (Serial1.available()) {
             buffer[i] = Serial1.read();
             i++;
             if (i == sizeof(Message)) {
                 current_message = &buffer_message;
                 i = 0;
+                return;
             }
         }
     }
@@ -49,7 +50,7 @@ int main() {
     init_servo_tilt();
     init_laser();
     Scheduler_Init();
-    Serial1.begin(9600);
+    Serial1.begin(SERIAL_BAUD);
 
     // Scheduler
     Scheduler_StartTask(0, 10, control);

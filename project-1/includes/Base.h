@@ -16,6 +16,8 @@
 #define ON    TRUE
 #define OFF   FALSE
 
+#define SERIAL_BAUD 9600
+
 void init_arduino();
 
 #endif /* BASE_H */

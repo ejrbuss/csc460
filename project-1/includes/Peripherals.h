@@ -59,6 +59,8 @@ LiquidCrystal init_lcd();
 
 int sample_stick_u_x();
 int sample_stick_u_y();
+void init_stick_u_sw();
+int stick_u_down();
 void stick_u_on_switch(void (*isr)());
 
 // 
@@ -111,7 +113,7 @@ void map_servo_pan(int value, int min_value, int max_value);
 #define SERVO_TILT_DELAY     5
 
 void init_servo_tilt();
-void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd);
+void map_servo_tilt(int value, int min_value, int max_value);
 
 //
 // PHOTOCELL
@@ -122,5 +124,6 @@ void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd);
 #define PHOTO_HIT_THRESHOLD 1000
 
 void init_photocell();
+int photocell_hit();
 
 #endif /* PERIPHERALS_H */

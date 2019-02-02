@@ -37,7 +37,7 @@ int main() {
     LiquidCcrystal lcd = init_lcd();
     init_stick_u_sw();
     Scheduler_Init();
-    Serial1.begin(9600);
+    Serial1.begin(SERIAL_BAUD);
 
     lcd.print("Not hit :)")
 

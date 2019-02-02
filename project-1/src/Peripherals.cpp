@@ -9,6 +9,10 @@ void init_laser() {
     digitalWrite(LASER_PIN, LOW);
 }
 
+void set_laser(int on) {
+    digitalWrite(LASER_PIN, on);
+}
+
 //
 // LCD
 //
@@ -52,8 +56,15 @@ int sample_stick_u_y() {
 }
 
 void stick_u_on_switch(void (*isr)()) {
-    pinMode(STICK_U_PIN_SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(STICK_U_PIN_SW), isr, CHANGE);
+}
+
+void init_stick_u_sw() {
+    pinMode(STICK_U_PIN_SW, INPUT_PULLUP);
+}
+
+int stick_u_down() {
+    return !digitalRead(STICK_U_PIN_SW);
 }
 
 //
@@ -97,6 +108,10 @@ void init_photocell() {
     pinMode(PHOTO_PIN, INPUT);
 }
 
+int photocell_hit() {
+    return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
+}
+
 //
 // SERVO_PAN
 //
@@ -133,7 +148,7 @@ void init_servo_tilt() {
     servo_tilt.attach(SERVO_TILT_PIN);
 }
 
-void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd) {
+void map_servo_tilt(int value, int min_value, int max_value) {
     static int servo_tilt_position = SERVO_TILT_CENTER;
     static int last_call = 0;
     int this_call = millis();
@@ -144,9 +159,6 @@ void map_servo_tilt(int value, int min_value, int max_value, LiquidCrystal lcd) 
     Q78_t range = Q78(SERVO_TILT_MAX_SPEED);
     Q78_t ratio = Q78_div(Q78(value - min_value), Q78(max_value));
     Q78_t delta = Q78_mul(range, ratio);
-    // lcd.clear();
-    // lcd.print("pos: ");
-    // lcd.print(servo_tilt_position);
     servo_tilt_position += clamp(Q78_to_int(delta), -SERVO_TILT_MAX_SPEED, SERVO_TILT_MAX_SPEED);
     servo_tilt_position =  clamp(servo_tilt_position, SERVO_TILT_BOTTOM, SERVO_TILT_TOP);
     servo_tilt.writeMicroseconds(servo_tilt_position);
