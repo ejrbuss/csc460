@@ -27,12 +27,12 @@ void recieve() {
     static int i = 0;
     if (current_message == NULL) {
         char * buffer = (void *) &buffer_messsage;
-        while (Serial1.available()) {
+        // Read each byte of message 1 at a time
+        if (Serial1.available()) {
             buffer[i] = Serial1.read();
             i++;
             if (i == sizeof(Message)) {
                 current_message = &buffer_messsage;
-                return;
             }
         }
     }
@@ -49,7 +49,7 @@ int main() {
 
     // Scheduler
     Scheduler_StartTask(0, 10, control);
-    Scheduler_StartTask(0, 5, recieve);
+    Scheduler_StartTask(0, 1, recieve);
 
     while (!g_done) {
         u32 idle_period = Scheduler_Dispatch();

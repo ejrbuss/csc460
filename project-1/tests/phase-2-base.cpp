@@ -1,6 +1,20 @@
 #include "Base.h"
 #include "Phase-2.h"
 
+/*
+TTS Overviewe
+
+PROS
+ - pseudo-concurreny
+ - deterministic
+ - simplicity
+ - low overheard
+ - no race conditions (every function runs to completion)
+
+CONS
+ - 
+*/
+
 /* pseduo-code
 
 int g_done = NO;
@@ -22,6 +36,7 @@ void sample() {
 }
 
 void send() {
+    // Write each byte of current message one at a time
     char * buffer = (void *) &current_message;
     int i;
     for (i = 0; i < sizeof(Message); i++) {
