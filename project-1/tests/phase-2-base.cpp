@@ -24,8 +24,6 @@ Message current_message;
 void sample() {
     if (photo_hit()) {
         current_message.done = YES;
-        lcd.clear();
-        lcd.print("Hit :O");
     } else {
         current_message.u_x   = sample_stick_u_x();
         current_message.u_y   = sample_stick_u_y();
@@ -50,7 +48,7 @@ int main() {
     /* pseudo-code
 
     init_arduino();
-    init_lcd();
+    LiquidCcrystal lcd = init_lcd();
     init_stick_u_sw();
     Scheduler_Init();
 
@@ -66,7 +64,8 @@ int main() {
             idle(idle_period);
         }
     }
-
+    lcd.clear();
+    lcd.print("Hit :O");
     */
    return 0;
 }
