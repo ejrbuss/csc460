@@ -12,7 +12,7 @@
 // LASER
 //
 
-#define LASER_PIN 5
+#define LASER_PIN 52
 
 void init_laser();
 void toggle_laser();
@@ -45,7 +45,7 @@ LiquidCrystal init_lcd();
 
 #define STICK_U_PIN_X 8
 #define STICK_U_PIN_Y 9
-#define STICK_U_PIN_SW 10
+#define STICK_U_PIN_SW 50
 
 #define STICK_U_OFFSET_X 506
 #define STICK_U_OFFSET_Y 506
@@ -119,7 +119,7 @@ void map_servo_tilt(int value, int min_value, int max_value);
 // PHOTOCELL
 //
 
-#define PHOTO_PIN 13
+#define PHOTO_PIN 11
 
 #define PHOTO_HIT_THRESHOLD 1000
 
