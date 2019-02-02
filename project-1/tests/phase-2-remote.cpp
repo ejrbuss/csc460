@@ -26,7 +26,7 @@ void control() {
 void recieve() {
     static int i = 0;
     if (current_message == NULL) {
-        char * buffer = (void *) &buffer_messsage;
+        u8 * buffer = &buffer_messsage;
         // Read each byte of message 1 at a time
         if (Serial1.available()) {
             buffer[i] = Serial1.read();
