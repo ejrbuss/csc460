@@ -9,6 +9,13 @@
 #include "Arduino.h"
 #include "Types.h"
 
+#define TRUE  1
+#define FALSE 0
+#define YES   TRUE
+#define NO    FALSE
+#define ON    TRUE
+#define OFF   FALSE
+
 void init_arduino();
 
 #endif /* BASE_H */
