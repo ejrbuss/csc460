@@ -1,6 +1,6 @@
 # CSC 460 Project
 
-This is the source code repository for Team 3 of the Universiity of Victoria's CSC 460 Design and Analysis of Real-time Systems Spring 2019. For documentation and dissccussion of the design proceess please visit our [projets site](https://sites.google.com/view/csc-460/home).
+This is the source code repository for Team 3 of the Universiity of Victoria's CSC 460 Design and Analysis of Real-time Systems Spring 2019. For documentation and discussion of the design process please visit our [projects site](https://sites.google.com/view/csc-460/home).
 
 ## Running
 
