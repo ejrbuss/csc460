@@ -162,5 +162,4 @@ void map_servo_tilt(int value, int min_value, int max_value) {
     servo_tilt_position += clamp(Q78_to_int(delta), -SERVO_TILT_MAX_SPEED, SERVO_TILT_MAX_SPEED);
     servo_tilt_position =  clamp(servo_tilt_position, SERVO_TILT_BOTTOM, SERVO_TILT_TOP);
     servo_tilt.writeMicroseconds(servo_tilt_position);
-    delay(SERVO_TILT_DELAY);
 }
