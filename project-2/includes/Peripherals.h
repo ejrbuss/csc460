@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Base.h"
-#undef _useTimer1 /* Keep timer 1 for ourselves */
 #include "Servo.h"
 #include "Compute.h"
 #include "LiquidCrystal.h"

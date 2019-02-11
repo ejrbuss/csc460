@@ -12,7 +12,7 @@ volatile u8 changed        = YES;
 void print_time(LiquidCrystal * lcd) {
     static char buffer[BUF_LEN];
     int minutes    = (millis_passed / (60000)) % 100;
-    int seconds    = (millis_passed / (1000))  % 100;
+    int seconds    = (millis_passed / (1000))  % 60;
     int hundredths = (millis_passed / (10))    % 100;
     snprintf(buffer, BUF_LEN, "%02d:%02d:%02d", minutes, seconds, hundredths);
     lcd->setCursor(0, 0);
