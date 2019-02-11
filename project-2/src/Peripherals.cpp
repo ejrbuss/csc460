@@ -111,3 +111,55 @@ void init_photocell() {
 int photocell_hit() {
     return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
 }
+
+//
+// SERVO_PAN
+//
+
+static Servo servo_pan;
+
+void init_servo_pan() {
+    servo_pan.attach(SERVO_PAN_PIN);
+}
+
+void map_servo_pan(int value, int min_value, int max_value) {
+    static int servo_pan_position = SERVO_PAN_CENTER;
+    static int last_call = 0;
+    int this_call = millis();
+    if (this_call - last_call < SERVO_PAN_DELAY) {
+        return;
+    }
+    last_call = this_call;
+    Q78_t range = Q78(SERVO_PAN_MAX_SPEED);
+    Q78_t ratio = Q78_div(Q78(value - min_value), Q78(max_value));
+    Q78_t delta = Q78_mul(range, ratio);
+    servo_pan_position += clamp(Q78_to_int(delta), -SERVO_PAN_MAX_SPEED, SERVO_PAN_MAX_SPEED);
+    servo_pan_position =  clamp(servo_pan_position, SERVO_PAN_BOTTOM, SERVO_PAN_TOP);
+    servo_pan.writeMicroseconds(servo_pan_position);
+}
+
+//
+// SERVO_TILT
+//
+
+static Servo servo_tilt;
+
+void init_servo_tilt() {
+    servo_tilt.attach(SERVO_TILT_PIN);
+}
+
+void map_servo_tilt(int value, int min_value, int max_value) {
+    static int servo_tilt_position = SERVO_TILT_CENTER;
+    static int last_call = 0;
+    int this_call = millis();
+    if (this_call - last_call < SERVO_TILT_DELAY) {
+        return;
+    }
+    last_call = this_call;
+    Q78_t range = Q78(SERVO_TILT_MAX_SPEED);
+    Q78_t ratio = Q78_div(Q78(value - min_value), Q78(max_value));
+    Q78_t delta = Q78_mul(range, ratio);
+    servo_tilt_position += clamp(Q78_to_int(delta), -SERVO_TILT_MAX_SPEED, SERVO_TILT_MAX_SPEED);
+    servo_tilt_position =  clamp(servo_tilt_position, SERVO_TILT_BOTTOM, SERVO_TILT_TOP);
+    servo_tilt.writeMicroseconds(servo_tilt_position);
+}

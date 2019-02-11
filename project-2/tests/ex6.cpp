@@ -1,5 +1,4 @@
 #define LOGIC
-
 #include "Base.h"
 #include "Peripherals.h"
 
@@ -7,24 +6,21 @@
 #define PIN_NOINT   42
 #define TIMER_COUNT 250
 
-u64 millis_passed = 0;
-u8 changed        = YES;
+volatile u64 millis_passed = 0;
+volatile u8 changed        = YES;
 
 void print_time(LiquidCrystal * lcd) {
-    static int run = 0;
     static char buffer[BUF_LEN];
-    int minutes    = (millis_passed / (1000 * 60)) % 100;
-    int seconds    = (millis_passed / (1000))      % 100;
-    int hundredths = (millis_passed / (10))        % 100;
+    int minutes    = (millis_passed / (60000)) % 100;
+    int seconds    = (millis_passed / (1000))  % 100;
+    int hundredths = (millis_passed / (10))    % 100;
     snprintf(buffer, BUF_LEN, "%02d:%02d:%02d", minutes, seconds, hundredths);
-    lcd->clear();
+    lcd->setCursor(0, 0);
     lcd->print(buffer);
-    lcd->print("  ");
-    lcd->print(run++);
 }
 
 ISR (TIMER1_COMPA_vect) {
-    static u8 milli_count = 0;
+    static volatile u8 milli_count = 0;
     
     // disable interrupts
     noInterrupts();

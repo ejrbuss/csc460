@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Base.h"
+#undef _useTimer1 /* Keep timer 1 for ourselves */
+#include "Servo.h"
 #include "Compute.h"
 #include "LiquidCrystal.h"
 
@@ -85,6 +87,34 @@ void stick_u_on_switch(void (*isr)());
 int sample_stick_m_x();
 int sample_stick_m_y();
 void stick_m_on_switch(void (*isr)());
+
+//
+// SERVO_PAN
+//
+
+#define SERVO_PAN_PIN       13
+#define SERVO_PAN_TOP       2000
+#define SERVO_PAN_BOTTOM    500
+#define SERVO_PAN_CENTER    1500
+#define SERVO_PAN_MAX_SPEED 7
+#define SERVO_PAN_DELAY     5
+
+void init_servo_pan();
+void map_servo_pan(int value, int min_value, int max_value);
+
+// 
+// SERVO_TILT
+//
+
+#define SERVO_TILT_PIN       12
+#define SERVO_TILT_TOP       1250
+#define SERVO_TILT_BOTTOM    750
+#define SERVO_TILT_CENTER    1000
+#define SERVO_TILT_MAX_SPEED 5
+#define SERVO_TILT_DELAY     5
+
+void init_servo_tilt();
+void map_servo_tilt(int value, int min_value, int max_value);
 
 //
 // PHOTOCELL
