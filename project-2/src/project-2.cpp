@@ -3,6 +3,7 @@
 
 int main(void) {
     // !!! THIS WILL ONLY WORK ON SOME DEVICES !!!
+    /*
     DDRB  = 0xFF;
     PORTB = 0xFF;
     for (;;) {
@@ -11,5 +12,6 @@ int main(void) {
         PORTB = 0xFF;
         _delay_ms(1000);
     }
+    */
     return 0;
 }

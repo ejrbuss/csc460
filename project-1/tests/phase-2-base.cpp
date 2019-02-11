@@ -48,6 +48,7 @@ int main() {
     pinMode(LOGIC_SAMPLE, OUTPUT);
     pinMode(LOGIC_SEND, OUTPUT);
 
+    Serial.begin(SERIAL_BAUD);
     Serial1.begin(SERIAL_BAUD);
 
     LiquidCrystal lcd = init_lcd();

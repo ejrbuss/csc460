@@ -16,6 +16,18 @@
 #define ON    TRUE
 #define OFF   FALSE
 
+#define BV(bit) (1 << bit)
+
+#ifdef LOGIC
+    #define LOGIC_INIT(pin) pinMode(pin, OUTPUT);
+    #define LOGIC_HIGH(pin) digitalWrite(pin, HIGH)
+    #define LOGIC_LOW(pin)  digitalWrite(pin, LOW)
+#else
+    #define LOGIC_INIT(pin) ;
+    #define LOGIC_HIGH(pin) ;
+    #define LOGIC_LOW(pin)  ;
+#endif
+
 #define SERIAL_BAUD 9600
 
 void init_arduino();

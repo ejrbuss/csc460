@@ -13,4 +13,9 @@ typedef signed int  s16;
 typedef signed long s32;
 typedef signed long long s64;
 
+typedef signed char i8;
+typedef signed int  i16;
+typedef signed long i32;
+typedef signed long long i64;
+
 #endif /* TYPES_H */

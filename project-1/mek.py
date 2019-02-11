@@ -25,12 +25,7 @@ flags = [
     '-fuse-linker-plugin',
 ]
 
-if options.mode == 'host':
-    main = 'host.cpp'
-elif options.mode == 'client':
-    main = 'client.cpp'
-else:
-    main = 'project-1.cpp'
+main = 'project-1.cpp'
 
 if options.release:
     flags += ['-Wall', '-O']
