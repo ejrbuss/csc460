@@ -109,16 +109,14 @@ namespace RTOS {
         task_fn_t fn;   // A pointer to the task funtion
         void * state;   // A pointer to the task's associated state
         Event_t events; // The events that cause this task to be scheduled
-        u16 period_ms;  // The schedule period of this task (in milliseconds)
-        u16 delay_ms;   // The delay before this task is scheduled
+        i16 period_ms;  // The schedule period of this task (in milliseconds)
+        i16 delay_ms;   // The delay before this task is scheduled
         // "hidden" fields
-        struct impl {
-            #ifdef RTOS_TRACE
+        struct {
             u8 instance; // Used to identify a task during a trace
-            #endif
-            u16 last;    // The last time this task was run
-            u16 average; // The average runtime of this task
-        };
+            i64 last;    // The last time this task was run
+            i16 maximum; // The average runtime of this task
+        } impl;
     };
 
     namespace Task {

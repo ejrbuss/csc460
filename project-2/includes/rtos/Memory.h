@@ -52,15 +52,14 @@ namespace RTOS::Memory {
      *   *Pool::cdr(my_linked_list) = 2; // Set the second itme to 2
      */
     typedef struct Pool_t Pool_t;
-    struct __attribute__ ((packed)) Pool_t {
+    struct Pool_t {
         u8 chunk;        // The number of bytes in each chunk
         u8 chunks;       // The number of chunks
         // "hidden" fields
-        struct impl {
-            u8 step;     // The offset between chunks
+        struct {
             u8 * data;   // The memory buffer
             void * head; // The current free head
-        };
+        } impl;
     };
 
     namespace Pool {
@@ -78,7 +77,9 @@ namespace RTOS::Memory {
 
         /**
          * Allocates a chunk and returns a pointer to it. If the pool is out of 
-         * memory nullptr will be returned.
+         * memory and RTOS_CHECK_POOL is enabled an error trace will be 
+         * produced, otherwise this function is considered 
+         * undefined at this point.
          * 
          * @param   Pool_t * pool the pool to allocate from
          * @returns void *        a chunk

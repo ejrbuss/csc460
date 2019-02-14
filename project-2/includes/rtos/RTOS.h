@@ -3,6 +3,10 @@
 #ifndef RTOS_H
 #define RTOS_H
 
+#include <stdlib.h>
+#include <util/atomic.h>
+#include <Arduino.h> // TODO remove this ugly dependency
+
 //
 // Macros
 //
@@ -31,19 +35,25 @@ typedef signed long long i64;
 #include "Conf.h"
 #include "CheckConf.h"
 #include "Event.h"
+#include "Time.h"
+#include "Memory.h"
 #include "Task.h"
 #include "Trace.h"
-#include "Memory.h"
 
 namespace RTOS {
 
     /**
-     * Starts the RTOS.
+     * Initializes the RTOS.
      */
     void init();
+    
+    /**
+     * Starts the RTOS.
+     */
+    void dispatch();
 
     /**
-     * Immediately halts the execution of the RTOS, producing a trace error.
+     * Immediately halts the execution of the RTOS, producing a halt trace.
      */
     void halt();
 
@@ -59,15 +69,13 @@ namespace RTOS {
     void error();
 
     /**
-     * Returns the current time in milliseconds.
-     */
-    u64 now();
-
-    /**
      * Registers are bits of data the RTOS needs to share across its entire
      * system and may want to share publically.
      */
     namespace Registers {
+
+        // An event register used to store the triggering events
+        extern Event_t triggers;
 
         // A value that will be set with the bitwise ORed values of all active
         // events
@@ -82,46 +90,6 @@ namespace RTOS {
      * User defined functions, these must be implemented by YOU!
      */
     namespace UDF {
-
-        /**
-         * Create initial tasks, setup hardware, etc. Once this function is 
-         * returned from the scheduler will start running.
-         * 
-         * eg.
-         *   #include <RTOS.h>
-         * 
-         *   int main() { 
-         *      RTOS::init();
-         *      return 0;
-         *   }
-         * 
-         *   namespace RTOS::UDF {
-         * 
-         *       bool task_blink_LED_fn(Task_t * self) {
-         *           bool * on = (bool *) self->state;
-         *           *on = !(*on);
-         *           digitalWrite(BUILTIN_LED, *on);
-         *           return true; // Schedule me agin!
-         *       }
-         * 
-         *       void init() {
-         *           // Initialize LED
-         *           pinMode(BUILTIN_LED, Output);
-         *           // Create a task
-         *           Task_t * task_blink_LED = Task::from_function(
-         *               "task_blink_LED",  // A debug handle for tracing
-         *               task_blink_LED_fn, // The task function
-         *           );
-         *           // Initialize state
-         *           bool * state = Memory::static_alloc("LED state", sizeof(bool));
-         *           *state = false;
-         *           task_blink_LED->state = state;  // Set state
-         *           task_blink_LED->period = 1000;  // Set period (in milliseconds)
-         *           Task::dispatch(task_blink_LED); // Dispatch the task
-         *       }
-         *   }
-         */
-        void init();
         
         /**
          * Handles tracing data. Traces are provided for a variety actions that
@@ -139,16 +107,20 @@ namespace RTOS {
          * 
          * eg.
          * 
-         *   void RTOS::UDF::init() {
-         *       use RTOS;
+         *    int main() {
+         *       RTOS::init();
          *       ...
          *       // Set the pin for a given task
-         *       Trace::PinTrace(my_task, PIN_12);
+         *       RTOS::Trace::PinTrace(my_task, PIN_12);
+         *       RTOS::dispatch();
+         *       return 0;
          *   }
          *  
-         *   void RTOS::UDF::trace(const Trace_t * trace) {
-         *       // Tell PIN MODE to handle trace
-         *       RTOS::Trace::PinMode(trace);
+         *   namespace RTOS::UDF {
+         *       void trace(Trace_t * trace) {
+         *           // Tell PIN MODE to handle trace
+         *           RTOS::Trace::PinMode(trace);
+         *       }
          *   }
          * 
          * See Trace.h for how to use these builtin modes

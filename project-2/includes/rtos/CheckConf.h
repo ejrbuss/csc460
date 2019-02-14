@@ -17,8 +17,8 @@
 #include <FORCE STOP>
 #endif
 
-#if !defined(RTOS_MAX_TASKS) || RTOS_MAX_TASKS < 0 || RTOS_MAX_TASKS > 256
-#error RTOS Configuration Error: define RTOS_MAX_TASKS with a value between 0 and 256
+#if !defined(RTOS_MAX_TASKS) || RTOS_MAX_TASKS < 0 || RTOS_MAX_TASKS > 64
+#error RTOS Configuration Error: define RTOS_MAX_TASKS with a value between 0 and 64
 #include <FORCE STOP>
 #endif
 

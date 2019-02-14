@@ -16,16 +16,20 @@ namespace RTOS {
         Def_Alloc, // The allocation of memory
         // Marks
         Mark_Init,  // The start of the RTOS
+        Mark_Halt,  // RTOS exucution is about to stop
         Mark_Start, // The start of a task
         Mark_Stop,  // The end of a task
-        Mark_Delay, // Scheduled idle time
         Mark_Event, // The occurence of an event
+        Mark_Idle,  // Scheduled idle time
+        Mark_Wake,  // Woke up from idle time
         // Errors
-        Error_Halt,            // RTOS exucution is about to stop
         Error_Max_Event,       // Maximum number of events exceeded
         Error_Undefined_Event, // Undefined event dispatched
         Error_Max_Alloc,       // Maximum memory allocation exceeded
+        Error_Max_Pool,        // Maximum pool allocation exceeded
+        Error_Null_Pool,       // Null pool or chunk pointer passed as argument
         Error_Max_Task,        // Maximum tasks exceeded
+        Error_Null_Task,       // Null task passed as argument
         Error_Invalid_Task,    // Invalid task configuration provided
         Error_Duplicate_Event, // Two tasks act on the same event
         Error_Missed,          // A task schedule was missed
@@ -59,13 +63,17 @@ namespace RTOS {
             } def;
             union {
                 struct { u64 time; } init;
+                struct { u64 time; } halt;
                 struct { u64 time; u8 instance; } start;
                 struct { u64 time; u8 instance; } stop;
                 struct { u64 time; Event_t event; } event;
+                struct { u64 time; } idle;
+                struct { u64 time; } wake;
             } mark;
             union {
                 struct { Event_t event; } undefined_event;
                 struct { Event_t event; } duplicate_event;
+                struct { u8 instance; } invalid_task;
                 struct { u8 instance; } missed;
             } error;
         };
