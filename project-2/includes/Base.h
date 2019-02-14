@@ -7,7 +7,6 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include "Arduino.h"
-#include "Types.h"
 
 #define TRUE  1
 #define FALSE 0

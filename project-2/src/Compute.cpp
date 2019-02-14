@@ -9,16 +9,16 @@ float Q78_to_float(Q78_t q) {
 }
 
 Q78_t Q78_mul(Q78_t a, Q78_t b) {
-    s32 tmp_a = a;
-    s32 tmp_b = b;
-    s32 tmp_c = (tmp_a * tmp_b) / Q78_SCALE_FACTOR;
+    i32 tmp_a = a;
+    i32 tmp_b = b;
+    i32 tmp_c = (tmp_a * tmp_b) / Q78_SCALE_FACTOR;
     return (Q78_t) tmp_c;
 }
 
 Q78_t Q78_div(Q78_t a, Q78_t b) {
-    s32 tmp_a = a;
-    s32 tmp_b = b;
-    s32 tmp_c = (tmp_a * Q78_SCALE_FACTOR) / tmp_b;
+    i32 tmp_a = a;
+    i32 tmp_b = b;
+    i32 tmp_c = (tmp_a * Q78_SCALE_FACTOR) / tmp_b;
     return (Q78_t) tmp_c;
 }
 
