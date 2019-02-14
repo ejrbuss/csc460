@@ -12,7 +12,7 @@
 #define NUMTYPE_U(n) NUMTYPE_U_IMPL(n)
 #define NUMTYPE_I_IMPL(n) i ## n
 #define NUMTYPE_I(n) NUMTYPE_i_IMPL(n)
-#define BV(bit) (1 << bit)
+#define BV(bit) (1 << (bit))
 
 //
 // Exact numeric types
@@ -90,30 +90,35 @@ namespace RTOS {
          * eg.
          *   #include <RTOS.h>
          * 
-         *   void main() { RTOS::init(); }
-         * 
-         *   bool task_blink_LED_fn(RTOS::Task_t * self) {
-         *       bool * on = (bool *) self->state;
-         *       *on = !(*on);
-         *       digitalWrite(BUILTIN_LED, *on);
-         *       return true; // Schedule me agin!
+         *   int main() { 
+         *      RTOS::init();
+         *      return 0;
          *   }
          * 
-         *   void RTOS::UDF::init() {
-         *       use RTOS;
-         *       // Initialize LED
-         *       pinMode(BUILTIN_LED, Output);
-         *       // Create a task
-         *       Task_t * task_blink_LED = Task::from_function(
-         *            "task_blink_LED",  // A debug handle for tracing
-         *            task_blink_LED_fn, // The task function
-         *       );
-         *       // Initialize state
-         *       bool * state = Memory::static_alloc("LED state", sizeof(bool));
-         *       *state = false;
-         *       task_blink_LED->state = state;  // Set state
-         *       task_blink_LED->period = 1000;  // Set period (in milliseconds)
-         *       Task::dispatch(task_blink_LED); // Dispatch the task
+         *   namespace RTOS::UDF {
+         * 
+         *       bool task_blink_LED_fn(Task_t * self) {
+         *           bool * on = (bool *) self->state;
+         *           *on = !(*on);
+         *           digitalWrite(BUILTIN_LED, *on);
+         *           return true; // Schedule me agin!
+         *       }
+         * 
+         *       void init() {
+         *           // Initialize LED
+         *           pinMode(BUILTIN_LED, Output);
+         *           // Create a task
+         *           Task_t * task_blink_LED = Task::from_function(
+         *               "task_blink_LED",  // A debug handle for tracing
+         *               task_blink_LED_fn, // The task function
+         *           );
+         *           // Initialize state
+         *           bool * state = Memory::static_alloc("LED state", sizeof(bool));
+         *           *state = false;
+         *           task_blink_LED->state = state;  // Set state
+         *           task_blink_LED->period = 1000;  // Set period (in milliseconds)
+         *           Task::dispatch(task_blink_LED); // Dispatch the task
+         *       }
          *   }
          */
         void init();
@@ -150,7 +155,7 @@ namespace RTOS {
          * 
          * @param const Trace_t * trace the trace action that just occured
          */
-        void trace(const Trace_t * trace);
+        void trace(Trace_t * trace);
 
         /**
          * This function is called with an error trace regardless if RTOS_TRACE
@@ -158,7 +163,7 @@ namespace RTOS {
          * gracefully. Returning true from this function will resume scheduling.
          * Returning false from this function will halt scheduling.
          */
-        bool error(const Trace_t * trace);
+        bool error(Trace_t * trace);
 
     }
     

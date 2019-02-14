@@ -17,9 +17,9 @@ void set_laser(int on) {
 // LCD
 //
 
-LiquidCrystal init_lcd() {
-    LiquidCrystal lcd = LiquidCrystal(LCD_RS, LCD_EN, LCD_DB4, LCD_DB5, LCD_DB6, LCD_DB7);
-    lcd.begin(16, 2);
+LiquidCrystal * init_lcd() {
+    LiquidCrystal * lcd = new LiquidCrystal(LCD_RS, LCD_EN, LCD_DB4, LCD_DB5, LCD_DB6, LCD_DB7);
+    lcd->begin(16, 2);
     return lcd;
 }
 

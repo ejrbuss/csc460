@@ -30,7 +30,7 @@ int laser_on();
 #define LCD_DB6 6
 #define LCD_DB7 7
 
-LiquidCrystal init_lcd();
+LiquidCrystal * init_lcd();
 
 //
 // Sticks 

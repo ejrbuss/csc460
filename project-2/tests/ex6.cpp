@@ -42,7 +42,7 @@ ISR (TIMER1_COMPA_vect) {
 int main() {
     init_arduino();
     LOGIC_INIT(PIN_NOINT);
-    LiquidCrystal lcd = init_lcd();
+    LiquidCrystal * lcd = init_lcd();
 
     // Begin timer ISR configuration
     noInterrupts(); {
@@ -59,7 +59,7 @@ int main() {
 
     for (;;) {
         if (changed) {
-            print_time(&lcd);
+            print_time(lcd);
             changed = NO;
         }
     }

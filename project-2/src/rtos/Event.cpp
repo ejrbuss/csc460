@@ -38,7 +38,7 @@ namespace RTOS::Event {
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_EVENT)
-        if (e > (Event_t) BV(event_count)) {
+        if (e > (Event_t) BV(event_count - 1)) {
             Registers::trace.tag = Error_Undefined_Event;
             error();
         }

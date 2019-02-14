@@ -15,8 +15,6 @@
 #define ON    TRUE
 #define OFF   FALSE
 
-#define BV(bit) (1 << bit)
-
 #ifdef LOGIC
     #define LOGIC_INIT(pin) pinMode(pin, OUTPUT);
     #define LOGIC_HIGH(pin) digitalWrite(pin, HIGH)
