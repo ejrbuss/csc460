@@ -56,13 +56,14 @@ namespace RTOS {
     struct Trace_t {
         Trace_Tag_t tag; // The trace tag
         union {
-            struct {
+            union {
+                struct { const char * handle; };
                 struct { const char * handle; u8 instance; } task;
                 struct { const char * handle; Event_t event; } event;
                 struct { const char * handle; u16 bytes; } alloc;
             } def;
             union {
-                struct { u64 time; } init;
+                struct { u64 time; u16 heap; } init;
                 struct { u64 time; } halt;
                 struct { u64 time; u8 instance; } start;
                 struct { u64 time; u8 instance; } stop;

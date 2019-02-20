@@ -27,7 +27,7 @@ namespace RTOS::Time {
         return millis();
     }
 
-    void idle(u16 this_time, u16 idle_time) {
+    void idle(i64 this_time, i64 idle_time) {
 
         #ifdef RTOS_TRACE
             Registers::trace.tag = Mark_Idle;

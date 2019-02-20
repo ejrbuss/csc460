@@ -25,7 +25,7 @@
     #define LOGIC_LOW(pin)  ;
 #endif
 
-#define SERIAL_BAUD 9600
+#define SERIAL_BAUD 115200
 
 void init_arduino();
 

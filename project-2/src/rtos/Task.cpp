@@ -22,6 +22,7 @@ namespace RTOS::Task {
             Registers::trace.tag = Def_Task;
             Registers::trace.def.task.handle = handle;
             Registers::trace.def.task.instance = task->impl.instance;
+            trace();
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
@@ -62,9 +63,9 @@ namespace RTOS::Task {
         taken_events |= task->events;
         #endif
 
-        if (task->period_ms) {
+        if (task->period_ms > 0) {
             Registers::periodic_tasks = Task::insert_ordered(Registers::periodic_tasks, task);
-        } else if (task->delay_ms) {
+        } else if (task->delay_ms > 0) {
             Registers::delayed_tasks = Task::insert_ordered(Registers::delayed_tasks, task);
         } else {
             Registers::event_tasks_tail = Task::insert_tail(Registers::event_tasks_tail, task);
@@ -211,7 +212,7 @@ namespace RTOS::Task {
 
         if (tasks == nullptr || Task::time_next(tasks) > time_next) {
             Memory::Pool::cons(task, tasks);
-            return tasks;
+            return task;
         } else {
             for (;;) {
                 Task_t * cdr = Task::cdr(tasks);
@@ -233,7 +234,6 @@ namespace RTOS::Task {
             error();
         }
         #endif
-
         return task->impl.last + task->period_ms + task->delay_ms;
     }
 
@@ -247,6 +247,19 @@ namespace RTOS::Task {
         #endif
 
         return Task::time_next(task) - time_ms;
+    }
+
+    void debug_serial_print(Task_t * task) {
+        if (task == nullptr) {
+            Serial.print("nullptr");
+        } else {
+            Serial.print("{ delay: ");
+            Serial.print(task->delay_ms);
+            Serial.print(" period: ");
+            Serial.print(task->period_ms);
+            Serial.print("}");
+        }
+        Serial.println();
     }
 
 }

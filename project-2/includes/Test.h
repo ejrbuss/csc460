@@ -28,6 +28,7 @@ namespace Test {
             lcd->print(cond_token);
             Serial.print("!\nAssert failed: ");
             Serial.print(cond_token);
+            exit(0);
         }
     }
 

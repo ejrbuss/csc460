@@ -97,6 +97,8 @@ namespace RTOS {
          */
         i64 time_remaining(Task_t * task, i64 time_ms);
 
+        void debug_serial_print(Task_t * task);
+
     }
 
 }

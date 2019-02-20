@@ -21,7 +21,7 @@ namespace RTOS {
 
     void dispatch() {
         for (;;) {
-
+ 
             i64 this_time = Time::now();
             i64 idle_time = 0xFFFF;
 
@@ -69,7 +69,6 @@ namespace RTOS {
                     task = Task::cdr(task);
                 }
             }
-
             Time::idle(this_time, idle_time);
         }
     }
@@ -79,6 +78,7 @@ namespace RTOS {
         #ifdef RTOS_TRACE
             Registers::trace.tag = Mark_Init;
             Registers::trace.mark.init.time = Time::now();
+            Registers::trace.mark.init.heap = RTOS_VIRTUAL_HEAP;
             trace();
         #endif
 

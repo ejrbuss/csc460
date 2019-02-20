@@ -112,7 +112,7 @@ namespace RTOS::Memory {
         void * cons(void * chunk_car, void * chunk_cdr) {
 
             #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_POOL)
-            if (chunk_car == nullptr || chunk_cdr == nullptr) {
+            if (chunk_car == nullptr) {
                 Registers::trace.tag = Error_Null_Pool;
                 error();
             }
