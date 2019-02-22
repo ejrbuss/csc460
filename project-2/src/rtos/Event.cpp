@@ -1,7 +1,8 @@
 #include <RTOS.h>
 #include <Private.h>
 
-namespace RTOS::Event {
+namespace RTOS {
+namespace Event {
 
     static u8 event_count = 0;
 
@@ -45,4 +46,4 @@ namespace RTOS::Event {
         #endif
     }
 
-}
+}}

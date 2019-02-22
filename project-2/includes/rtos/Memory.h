@@ -3,7 +3,8 @@
 #ifndef RTOS_MEMORY_H
 #define RTOS_MEMORY_H
 
-namespace RTOS::Memory {
+namespace RTOS {
+namespace Memory {
 
     /**
      * Allocates `bytes` worth of memory (if available) from the RTOS virtual 
@@ -117,6 +118,6 @@ namespace RTOS::Memory {
 
     }
 
-}
+}}
 
 #endif /* RTOS_MEMORY_H */

@@ -36,7 +36,8 @@ int main() {
     return 0;
 }
 
-namespace RTOS::UDF {
+namespace RTOS {
+namespace UDF {
 
     void trace(Trace_t * t) {
         static int trace_no = 0;
@@ -69,4 +70,4 @@ namespace RTOS::UDF {
         return true; 
     }
 
-}
+}}

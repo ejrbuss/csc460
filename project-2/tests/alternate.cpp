@@ -2,11 +2,13 @@
 #include "Peripherals.h"
 #include <RTOS.h>
 
-bool led = false;
+bool task_led_on_fn(RTOS::Task_t * task) {
+    digitalWrite(LED_BUILTIN, 0);
+    return true;
+}
 
-bool task_led_fn(RTOS::Task_t * task) {
-    led = !led;
-    digitalWrite(LED_BUILTIN, led);
+bool task_led_off_fn(RTOS::Task_t * task) {
+    digitalWrite(LED_BUILTIN, 1);
     return true;
 }
 
@@ -16,9 +18,13 @@ int main() {
     Serial.begin(SERIAL_BAUD);
     Serial.write(sizeof(RTOS::Event_t));
     RTOS::init();
-    RTOS::Task_t * task_led = RTOS::Task::init("task_led", task_led_fn);
-    task_led->period_ms = 500;
-    RTOS::Task::dispatch(task_led);
+    RTOS::Task_t * task_led_on = RTOS::Task::init("task_led_on", task_led_on_fn);
+    RTOS::Task_t * task_led_off = RTOS::Task::init("task_led_off", task_led_off_fn);
+    task_led_on->period_ms = 500;
+    task_led_off->period_ms = 500;
+    task_led_off->delay_ms = 250;
+    RTOS::Task::dispatch(task_led_on);
+    RTOS::Task::dispatch(task_led_off);
     RTOS::dispatch();
     return 0;
 }

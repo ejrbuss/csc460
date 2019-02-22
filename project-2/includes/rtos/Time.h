@@ -1,9 +1,10 @@
 #pragma once
 
-#ifndef RTOS_TIME
-#define RTOS_TIME
+#ifndef RTOS_TIME_H
+#define RTOS_TIME_H
 
-namespace RTOS::Time {
+namespace RTOS {
+namespace Time {
 
         // TODO manage current time manually
         // Could reimplmeent millis using a timer
@@ -40,6 +41,6 @@ namespace RTOS::Time {
      */
     void idle(i64 from, i64 time);
 
-}
+}}
 
-#endif
+#endif /* RTOS_TIME_H */

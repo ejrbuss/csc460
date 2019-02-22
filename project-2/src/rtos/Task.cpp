@@ -1,7 +1,8 @@
 #include <RTOS.h>
 #include <Private.h>
 
-namespace RTOS::Task {
+namespace RTOS {
+namespace Task {
 
     static u8 instance_count = 0;
     static Event_t taken_events = 0;
@@ -262,4 +263,4 @@ namespace RTOS::Task {
         Serial.println();
     }
 
-}
+}}

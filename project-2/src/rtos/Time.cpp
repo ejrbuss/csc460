@@ -1,6 +1,7 @@
 #include <RTOS.h>
 
-namespace RTOS::Time {
+namespace RTOS {
+namespace Time {
 
     i64 now() {
         // TODO time should be managed manually (without Arduino)
@@ -29,12 +30,6 @@ namespace RTOS::Time {
 
     void idle(i64 this_time, i64 idle_time) {
 
-        #ifdef RTOS_TRACE
-            Registers::trace.tag = Mark_Idle;
-            Registers::trace.mark.idle.time = now();
-            trace();
-        #endif
-
         // Get most accurate idle time
         i64 now_time = now();
         idle_time -= (now_time - this_time);
@@ -43,6 +38,12 @@ namespace RTOS::Time {
         if (idle_time < 1) {
             return;
         }
+
+        #ifdef RTOS_TRACE
+            Registers::trace.tag = Mark_Idle;
+            Registers::trace.mark.idle.time = now();
+            trace();
+        #endif
 
         delay(idle_time);
         // TODO proper delay
@@ -62,4 +63,4 @@ namespace RTOS::Time {
         #endif
     }
 
-}
+}}

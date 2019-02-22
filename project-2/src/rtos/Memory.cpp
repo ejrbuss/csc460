@@ -1,6 +1,7 @@
 #include <RTOS.h>
 
-namespace RTOS::Memory {
+namespace RTOS {
+namespace Memory {
 
     static u8 virtual_heap[RTOS_VIRTUAL_HEAP];
     static u16 allocated_bytes = 0;
@@ -124,4 +125,4 @@ namespace RTOS::Memory {
 
     }
 
-}
+}}

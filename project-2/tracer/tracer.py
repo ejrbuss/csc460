@@ -55,6 +55,8 @@ def trace(serial):
     def rising_edge(time, instance, state):
         state.time = time
         x, y = state.tasks[instance + 1]
+        #x.append(time)
+        #y.append(high(instance))
         x.extend((time, time))
         y.extend((low(instance), high(instance)))
 
