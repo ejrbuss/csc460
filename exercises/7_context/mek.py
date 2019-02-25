@@ -23,10 +23,9 @@ flags = [
     '-fdata-sections',
     '-fno-fat-lto-objects',
     '-fuse-linker-plugin',
-    '-std=c++11',
 ]
 
-main = 'project-2.cpp'
+main = 'shared.c'
 
 if options.release:
     flags += ['-Wall', '-O']
