@@ -30,5 +30,5 @@ void enable_LED(unsigned int mask)
 
 void disable_LEDs(void)
 {
-		PORTD = 0x00;	//Initialize port to high
+    PORTD = 0x00;	//Initialize port to high
 }

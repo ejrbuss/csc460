@@ -1,5 +1,7 @@
 #include <string.h>
 #include "LED_Test.h"
+#include <avr/interrupt.h>
+#include <util/atomic.h>
 /**
  * \file active.c
  * \brief A Skeleton Implementation of an RTOS
@@ -74,8 +76,8 @@ void Task_Terminate(void);
   */ 
 extern void Enter_Kernel();
 
-#define Disable_Interrupt() asm volatile ("cli"::)
-#define Enable_Interrupt()  asm volatile ("sei"::)
+#define Disable_Interrupt() {PORTE=0b00010000; asm volatile ("cli"::);}
+#define Enable_Interrupt()  {PORTE=0b00000000; asm volatile ("sei"::);}
   
 
 /**
@@ -349,6 +351,7 @@ void Task_Create(voidfuncptr f) {
   * The calling task gives up its share of the processor voluntarily.
   */
 void Task_Next() {
+    PORTB = 0b01000000;
     if (KernelActive) {
         Disable_Interrupt();
         Cp ->request = NEXT;
@@ -380,20 +383,23 @@ void Task_Terminate() {
   */
 void Ping() {
     int  x ;
-    init_LED_D5();
+    Enable_Interrupt();
+    
+    // init_LED_D5();
     for(;;) {
         //LED on
-        enable_LED(LED_D5_GREEN);
+        // enable_LED(LED_D5_GREEN);
+        PORTB = 0b00010000;
 
-        for( x=0; x < 32000; ++x ) {} /* do nothing */
-        for( x=0; x < 32000; ++x ) {} /* do nothing */
-        for( x=0; x < 32000; ++x ) {} /* do nothing */
+        // for( x=0; x < 32000; ++x ) {} /* do nothing */
+        // for( x=0; x < 32000; ++x ) {} /* do nothing */
+        // for( x=0; x < 32000; ++x ) {} /* do nothing */
 
         //LED off
-        disable_LEDs();  
+        // disable_LEDs();
         
         /* printf( "*" );  */
-        Task_Next();
+        // Task_Next();
     }
 }
 
@@ -404,22 +410,49 @@ void Ping() {
   */
 void Pong() {
     int  x;
-    init_LED_D2();
+    Enable_Interrupt();
+    
+    // init_LED_D2();
     for(;;) {
         //LED on
-        enable_LED(LED_D2_GREEN);
+        // enable_LED(LED_D2_GREEN);
+        PORTB = 0b00100000;
 
-        for(x = 0; x < 32000; ++x) {} /* do nothing */
-        for(x = 0; x < 32000; ++x) {} /* do nothing */
-        for(x = 0; x < 32000; ++x) {}  /* do nothing */
+        // for(x = 0; x < 32000; ++x) {} /* do nothing */
+        // for(x = 0; x < 32000; ++x) {} /* do nothing */
+        // for(x = 0; x < 32000; ++x) {}  /* do nothing */
 
         //LED off
-        disable_LEDs();
+        // disable_LEDs();
 
         /* printf( "." );  */
-        Task_Next();
+        // Task_Next();
         
     }
+}
+
+#define TIMER_COUNT 250
+#define BV(bit) (1 << (bit))
+
+/*
+ *  Timer ISR
+ */
+ISR (TIMER1_COMPA_vect) {
+    static volatile unsigned char milli_count = 0;
+
+    // disable interrupts
+    Disable_Interrupt();
+
+    // Change time
+    milli_count++;
+    if (milli_count == 10) {
+        milli_count = 0;
+        // PORTB = PORTB ? 0x00 : 0xFF;
+        Task_Next();
+    }
+
+    // enable interrupts
+    Enable_Interrupt();
 }
 
 
@@ -429,6 +462,25 @@ void Pong() {
   */
 int main() {
    OS_Init();
+   
+   DDRB = 0xFF;
+   PORTB |= 0b00000000;
+   DDRE = 0xFF;
+   PORTE |= 0b00000000;
+   
+   // Configure ISR
+   Disable_Interrupt();
+   // We are using timer 1
+   // Configuring timer counter control register A and B
+   TCCR1A = 0x00;                 // Clear control register A
+   TCCR1B = 0x00;                 // Clear control register B
+   TCNT1  = 0x00;                 // Clear the counter
+   OCR1A  = TIMER_COUNT;          // The value we are waiting for
+   TCCR1B |= BV(WGM12);           // Use CTC mode
+   TCCR1B |= BV(CS11) | BV(CS10); // Scale by 64
+   TIMSK1 |= BV(OCIE1A);          // Enable timer compare interrupt
+   Enable_Interrupt();
+   
    Task_Create( Pong );
    Task_Create( Ping );
    OS_Start();
