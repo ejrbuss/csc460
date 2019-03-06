@@ -69,6 +69,14 @@ namespace RTOS {
     void error();
 
     /**
+     * Creates a message trace with the provided format (ala printf).
+     * 
+     * @param char * fmt the string format
+     * @param ...        format args
+     */ 
+    void debug_print(const char * fmt, ...);
+
+    /**
      * Registers are bits of data the RTOS needs to share across its entire
      * system and may want to share publically.
      */

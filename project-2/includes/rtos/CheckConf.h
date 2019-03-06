@@ -22,4 +22,9 @@
 #include <FORCE STOP>
 #endif
 
+#if !defined(RTOS_MESSAGE_BUFFER) || RTOS_MESSAGE_BUFFER < 0
+#error RTOS Configuration Error: define RTOS_MESSAGE_BUFFER with a value greater than 0
+#include <FORCE STOP>
+#endif
+
 #endif /* RTOS_CHECK_CONF_H */

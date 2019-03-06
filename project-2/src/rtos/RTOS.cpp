@@ -106,6 +106,19 @@ namespace RTOS {
         #endif
     }
 
+    void debug_print(const char * fmt, ...) {
+        #ifdef RTOS_TRACE
+            static char buffer[RTOS_MESSAGE_BUFFER];
+            va_list args;
+            va_start(args, fmt);
+            vsnprintf(buffer, RTOS_MESSAGE_BUFFER, fmt, args);
+            RTOS::Registers::trace.tag = Debug_Message;
+            RTOS::Registers::trace.debug.message = buffer;
+            trace();
+            va_end(args);
+        #endif
+    }
+
     void error() {
         trace();
         if (!UDF::error(&Registers::trace)) {

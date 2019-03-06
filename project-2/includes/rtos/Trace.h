@@ -33,6 +33,8 @@ namespace RTOS {
         Error_Invalid_Task,    // Invalid task configuration provided
         Error_Duplicate_Event, // Two tasks act on the same event
         Error_Missed,          // A task schedule was missed
+        // Debug
+        Debug_Message, // Used to send messages to the tracer
     };
 
     /**
@@ -77,6 +79,9 @@ namespace RTOS {
                 struct { u8 instance; } invalid_task;
                 struct { u8 instance; } missed;
             } error;
+            union {
+                struct { const char * message; };
+            } debug;
         };
     };
     
