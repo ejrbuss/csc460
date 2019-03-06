@@ -4,8 +4,10 @@
 #define RTOS_H
 
 #include <stdlib.h>
-#include <util/atomic.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <avr/sleep.h>
+#include <util/atomic.h>
 
 //
 // Macros

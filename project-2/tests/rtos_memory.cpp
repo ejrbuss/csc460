@@ -6,6 +6,10 @@ int led = 13;
 int main() {
     RTOS::init();
 
+    // "Statically" allocate some memory
+    // char * s1 = RTOS::Memory::static_alloc("s1", 16);
+    // char * s2 = RTOS::Memory::static_alloc("s1", 16);
+
     using namespace RTOS;
 
     return 0;

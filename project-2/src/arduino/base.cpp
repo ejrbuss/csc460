@@ -18,7 +18,6 @@
 */
 
 #include <Arduino.h>
-#include <Base.h>
 
 // Declared weak in Arduino.h to allow user redefinitions.
 int atexit(void (* /*func*/ )()) { return 0; }

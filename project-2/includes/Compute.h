@@ -3,8 +3,7 @@
 #ifndef COMPUTE_H
 #define COMPUTE_H
 
-#include "Base.h"
-#include "RTOS.h"
+#include <RTOS.h>
 
 // [-128.996, 127.996]
 #define Q78_SCALE_FACTOR 0x0100
