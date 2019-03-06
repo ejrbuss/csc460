@@ -65,7 +65,7 @@ namespace RTOS {
     void halt();
 
     /**
-     * Traces the current trace register
+     * Traces the current trace register. MUST BE CALLED IN AN ATOMIC BLOCK!
      */
     void trace();
 
@@ -105,13 +105,6 @@ namespace RTOS {
 
         // An event register used to store the triggering events
         extern Event_t triggers;
-
-        // A value that will be set with the bitwise ORed values of all active
-        // events
-        extern Event_t events;
-
-        // The last trace that occured.
-        extern Trace_t trace;
 
     }
 

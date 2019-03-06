@@ -1,4 +1,5 @@
 #include <RTOS.h>
+#include <Private.h>
 
 #define TIMER_COUNT 250
 
@@ -59,9 +60,11 @@ namespace Time {
         }
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Idle;
             Registers::trace.mark.idle.time = now();
             trace();
+        }
         #endif
 
         // Delay
@@ -70,9 +73,11 @@ namespace Time {
         }
         
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             RTOS::Registers::trace.tag = Mark_Wake;
             RTOS::Registers::trace.mark.wake.time = now();
             trace();
+        }
         #endif
     }
 

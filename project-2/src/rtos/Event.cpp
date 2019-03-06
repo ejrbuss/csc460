@@ -11,16 +11,20 @@ namespace Event {
         Event_t event = BV(event_count++);
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Def_Event;
             Registers::trace.def.event.handle = handle;
             Registers::trace.def.event.event = event;
             trace();
+        }
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_EVENT)
         if (event_count > RTOS_MAX_EVENTS) {
-            Registers::trace.tag = Error_Max_Event;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Max_Event;
+                error();
+            }
         }
         #endif
 
@@ -28,20 +32,23 @@ namespace Event {
     }
 
     void dispatch(Event_t e) {
-        
         Registers::events |= e;
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Event;
             Registers::trace.mark.event.time = Time::now();
             Registers::trace.mark.event.event = e;
             trace();
+        }
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_EVENT)
         if (e > (Event_t) BV(event_count - 1)) {
-            Registers::trace.tag = Error_Undefined_Event;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Undefined_Event;
+                error();
+            }
         }
         #endif
     }

@@ -7,11 +7,12 @@ namespace RTOS {
 
         // Public registers
         Event_t triggers;
-        Event_t events;
-        Trace_t trace;
+        volatile Event_t events;
+        volatile Trace_t trace;
 
         // Private registers        
         Memory::Pool_t * task_pool;
+        Task_t * current_task;
         Task_t * periodic_tasks;
         Task_t * delayed_tasks;
         Task_t * event_tasks;
@@ -80,10 +81,12 @@ namespace RTOS {
         #endif
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Init;
             Registers::trace.mark.init.time = Time::now();
             Registers::trace.mark.init.heap = RTOS_VIRTUAL_HEAP;
             trace();
+        }
         #endif
 
         Registers::task_pool = Memory::Pool::init(
@@ -98,9 +101,11 @@ namespace RTOS {
     void halt() {
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Halt;
             Registers::trace.mark.halt.time = Time::now();
             trace();
+        }
         #endif 
 
         #ifdef RTOS_USE_ARDUINO
@@ -112,8 +117,19 @@ namespace RTOS {
 
     void trace() {
         #ifdef RTOS_TRACE
-        UDF::trace(&Registers::trace);
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            UDF::trace((Trace_t *) &Registers::trace);
+        }
         #endif
+    }
+
+    void error() {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            trace();
+            if (!UDF::error((Trace_t *) &Registers::trace)) {
+                halt();
+            }
+        }
     }
 
     void debug_print(const char * fmt, ...) {
@@ -122,10 +138,12 @@ namespace RTOS {
             va_list args;
             va_start(args, fmt);
             vsnprintf(buffer, RTOS_MESSAGE_BUFFER, fmt, args);
-            RTOS::Registers::trace.tag = Debug_Message;
-            RTOS::Registers::trace.debug.message = buffer;
-            trace();
-            va_end(args);
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                RTOS::Registers::trace.tag = Debug_Message;
+                RTOS::Registers::trace.debug.message = buffer;
+                trace();
+                va_end(args);
+            }
         #endif
     }
 
@@ -138,13 +156,6 @@ namespace RTOS {
             }
             digitalWrite(LED_BUILTIN, led);
         #endif
-    }
-
-    void error() {
-        trace();
-        if (!UDF::error(&Registers::trace)) {
-            halt();
-        }
     }
 
 }
