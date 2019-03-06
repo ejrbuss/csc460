@@ -23,7 +23,7 @@
 // Checks may have performance overhead but help prevent undefined behaviour
 #define RTOS_CHECK_ALL   // Enables all other checks
 // #define RTOS_CHECK_ALLOC // Check bounds on allocation
-// #define RTOS_CHECK_POOL  // Check bound son pool allocation
+// #define RTOS_CHECK_POOL  // Check bounds on pool allocation
 // #define RTOS_CHECK_EVENT // Check bounds on event definitiom
 // #define RTOS_CHECK_TASK  // Check bounds on task definition
 

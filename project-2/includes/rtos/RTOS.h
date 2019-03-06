@@ -57,7 +57,7 @@ namespace RTOS {
      */
     void halt();
 
-        /**
+    /**
      * Traces the current trace register
      */
     void trace();

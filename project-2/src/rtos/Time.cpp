@@ -1,14 +1,34 @@
 #include <RTOS.h>
 
+#define TIMER_COUNT 250
+
 namespace RTOS {
 namespace Time {
+
+    volatile u64 timer1_millis = 0;
+
+    ISR(TIMER1_COMPA_vect) {
+        timer1_millis++;
+    }
+
+    void configureTimer() {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            TCCR1A = 0x00;                 // Clear control register A
+            TCCR1B = 0x00;                 // Clear control register B
+            TCNT1  = 0x00;                 // Clear the counter
+            OCR1A  = TIMER_COUNT;          // The value we are waiting for
+            TCCR1B |= BV(WGM12);           // Use CTC mode
+            TCCR1B |= BV(CS11) | BV(CS10); // Scale by 64
+            TIMSK1 |= BV(OCIE1A);          // Enable timer compare interrupt
+        } 
+    }
 
     i64 now() {
         // TODO time should be managed manually (without Arduino)
         // This should be done using an AVR timer
 
         // Milliseconds are accurate enough (we want to spend as little time
-        // being interrupted as possilbe, more accurate time tracking requires
+        // being interrupted as possible, more accurate time tracking requires
         // spending time checking the clock.
 
         // Define configuration values for determining which timer the system
@@ -25,7 +45,13 @@ namespace Time {
         //     time = isr_time_value;
         // }
         // return time;
-        return millis();
+        
+        i64 time;
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            time = timer1_millis;
+        }
+        
+        return time;
     }
 
     void idle(i64 this_time, i64 idle_time) {
