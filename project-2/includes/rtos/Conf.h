@@ -30,4 +30,9 @@
 // Max string buffer size for debug_print(...)
 #define RTOS_MESSAGE_BUFFER 256
 
+// Define if you want the RTOS to initialize the arduino library for you.
+// Only REQUIRED if you use the builtin trace methods, `pin_trace` or 
+//`serial_tracce`
+#define RTOS_USE_ARDUINO
+
 #endif /* RTOS_CONF */

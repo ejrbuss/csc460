@@ -84,6 +84,74 @@ namespace RTOS {
             } debug;
         };
     };
+
+    namespace Trace {
+
+        /**
+         * For use with `pin_trace`, configures a digital pin to correspond to a
+         * given task.
+         * 
+         * If USE_ARDUINO is not defined this function does nothing.
+         * 
+         * @param Task_t * task the task to configure
+         * @param u8       pin  the pin to associate with the task
+         */
+        void configure_pin(Task_t * task, u8 pin);
+
+        /**
+         * A builtin trace handler. For each task configured with 
+         * `configure_pin` a digital pin will be set high eeverytime that 
+         * task starts running, and set low again when it stops. For use with
+         * a Logic Analyzer.
+         * 
+         * If USE_ARDUINO is not defined this function does nothing.
+         * 
+         * eg.
+         * 
+         *     int main() {
+         *          ...
+         *          Task_t * my_task = Task::init("my_task", my_task_fn);
+         *          configure_pin(my_task, 8);
+         *          ...
+         *     }
+         * 
+         *     namespace RTOS {
+         *     namespace UDF {
+         *
+         *         void trace(Trace_t * trace) {
+         *             Trace::pin_trace(trace);
+         *         }  
+         *
+         *     }}
+         * 
+         * @param Trace_t * trace the trace to react to
+         */
+        void pin_trace(Trace_t * trace);
+
+        /**
+         * A builtin trace handler. Sends a byte serialized trace to Serial0
+         * on the board using the Arduino Serial library. This data can be
+         * interpretd by the tracer python module.
+         * 
+         * If USE_ARDUINO is not defined this function does nothing.
+         * 
+         * eg.
+         * 
+         *     namespace RTOS {
+         *     namespace UDF {
+         *
+         *         void trace(Trace_t * trace) {
+         *             Trace::serial_trace(trace);
+         *         }  
+         *
+         *     }}
+         * 
+         * @param Trace_t * trace the trace to react to
+         * @returns char *        bytes to send along the byte stream
+         */
+        void serial_trace(Trace_t * trace);
+
+    }
     
 }
 

@@ -27,6 +27,4 @@
 
 #define SERIAL_BAUD 115200
 
-void init_arduino();
-
 #endif /* BASE_H */

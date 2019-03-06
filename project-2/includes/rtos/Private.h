@@ -3,6 +3,10 @@
 #ifndef RTOS_PRIVATE_H
 #define RTOS_PRIVATE_H
 
+#ifdef RTOS_USE_ARDUINO
+    void init_arduino();
+#endif
+
 namespace RTOS {
 
     namespace Registers {
