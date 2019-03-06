@@ -129,6 +129,17 @@ namespace RTOS {
         #endif
     }
 
+    void debug_led(bool led) {
+        #ifdef RTOS_USE_ARDUINO
+            static bool first = true;
+            if (first) {
+                pinMode(LED_BUILTIN, OUTPUT);
+                first = false;
+            }
+            digitalWrite(LED_BUILTIN, led);
+        #endif
+    }
+
     void error() {
         trace();
         if (!UDF::error(&Registers::trace)) {

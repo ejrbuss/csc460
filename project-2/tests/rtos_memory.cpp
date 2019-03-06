@@ -4,7 +4,7 @@
 int led = 13;
 
 int main() {
-    Test::init(); 
+    RTOS::init();
 
     using namespace RTOS;
 
@@ -21,6 +21,7 @@ namespace UDF {
             default: 
                 break;
         }
+        Trace::serial_trace(t);
     }
 
     bool error(Trace_t * t) { 

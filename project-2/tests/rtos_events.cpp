@@ -4,10 +4,9 @@
 int led = 13;
 
 int main() {
-    Test::init(); 
+    RTOS::init();
 
     using namespace RTOS;
-    
     Event_t e1 = Event::init("event 1");
     Event_t e2 = Event::init("event 2");
     Event_t e3 = Event::init("event 3");
@@ -32,7 +31,7 @@ int main() {
     for (i = 0; i < RTOS_MAX_EVENTS - 2; i++) { 
         Event::init("");
     }
-
+    RTOS::halt();
     return 0;
 }
 
@@ -40,19 +39,23 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * t) {
+        Trace::serial_trace(t);
         static int trace_no = 0;
-        trace_no++;
-        switch (trace_no) {
-            case 1:
-            case 2:
-            case 3:
-                assert(t->tag == Def_Event);
-                break;
-            case 4:
-                assert(t->tag == Mark_Event && t->mark.event.event == 0b1);
-                break;
-            default: 
-                break;
+        if (t->tag != Debug_Message) {
+            trace_no++;
+            switch (trace_no) {
+                // case 1 - 3 RTOS init
+                case 4:
+                case 5:
+                case 6:
+                    assert(t->tag == Def_Event);
+                    break;
+                case 7:
+                    assert(t->tag == Mark_Event && t->mark.event.event == 0b1);
+                    break;
+                default: 
+                    break;
+            }
         }
     }
 

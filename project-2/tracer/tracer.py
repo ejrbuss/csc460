@@ -37,8 +37,12 @@ def connect():
 
 
 def rpl(serial):
+    init_decoder(serial.read(1))
     while True:
-        print(serial.read().decode('ascii'))
+        trace = decode_trace(serial)
+        if trace:
+            if trace.name == 'Debug_Message':
+                print(trace.message, end='', flush=True)
 
 def update(vis, serial):
     trace = decode_trace(serial)

@@ -92,7 +92,7 @@ namespace RTOS {
          * For use with `pin_trace`, configures a digital pin to correspond to a
          * given task.
          * 
-         * If USE_ARDUINO is not defined this function does nothing.
+         * If RTOS_USE_ARDUINO is not defined this function does nothing.
          * 
          * @param Task_t * task the task to configure
          * @param u8       pin  the pin to associate with the task
@@ -105,7 +105,7 @@ namespace RTOS {
          * task starts running, and set low again when it stops. For use with
          * a Logic Analyzer.
          * 
-         * If USE_ARDUINO is not defined this function does nothing.
+         * If RTOS_USE_ARDUINO is not defined this function does nothing.
          * 
          * eg.
          * 
@@ -134,7 +134,7 @@ namespace RTOS {
          * on the board using the Arduino Serial library. This data can be
          * interpretd by the tracer python module.
          * 
-         * If USE_ARDUINO is not defined this function does nothing.
+         * If RTOS_USE_ARDUINO is not defined this function does nothing.
          * 
          * eg.
          * 

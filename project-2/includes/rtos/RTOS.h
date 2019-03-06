@@ -87,6 +87,15 @@ namespace RTOS {
     void debug_print(const char * fmt, ...);
 
     /**
+     * Sets the builtin LED on or off for debugging purposes.
+     * 
+     * If RTOS_USE_ARDUINO is not defined this function does nothing.
+     * 
+     * @param bool led true for on, false for odd
+     */
+    void debug_led(bool led);
+
+    /**
      * Registers are bits of data the RTOS needs to share across its entire
      * system and may want to share publically.
      */

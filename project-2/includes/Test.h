@@ -17,15 +17,14 @@ namespace Test {
         u8 instance;
     };
 
-    static LiquidCrystal * lcd;
-    static Schedule_t * schedule_list;
+    static LiquidCrystal * lcd = nullptr;
+    static Schedule_t * schedule_list = nullptr;
     static u8 schedule_num = 0;
 
-    void init() {
-        lcd = init_lcd();
-    }
-
     void _assert(bool cond, const char * cond_token) {
+        if (lcd == nullptr) {
+            lcd = init_lcd();
+        }
         if (cond) {
             lcd->print(".");
             RTOS::debug_print(".", 0);
@@ -39,7 +38,6 @@ namespace Test {
     }
 
     void schedule(Schedule_t * list) {
-        Test::init();
         schedule_list = list;
     }
 
