@@ -1,4 +1,5 @@
 #include <RTOS.h>
+#include <Private.h>
 
 namespace RTOS {
 namespace Memory {
@@ -12,16 +13,20 @@ namespace Memory {
         allocated_bytes += bytes;
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Def_Alloc;
             Registers::trace.def.alloc.handle = handle;
             Registers::trace.def.alloc.bytes = bytes;
             trace();
+        }
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CsHECK_ALLOC)
         if (allocated_bytes > RTOS_VIRTUAL_HEAP) {
-            Registers::trace.tag = Error_Max_Alloc;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Max_Alloc;
+                error();
+            }
         }
         #endif
 
@@ -69,12 +74,16 @@ namespace Memory {
 
             #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_POOL)
             if (pool == nullptr) {
-                Registers::trace.tag = Error_Null_Pool;
-                error();
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                    Registers::trace.tag = Error_Null_Pool;
+                    error();
+                }
             }
             if (pool->impl.head == nullptr) {
-                Registers::trace.tag = Error_Max_Pool;
-                error();
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                    Registers::trace.tag = Error_Max_Pool;
+                    error();
+                }
             }
             #endif
 
@@ -89,8 +98,10 @@ namespace Memory {
 
             #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_POOL)
             if (pool == nullptr) {
-                Registers::trace.tag = Error_Null_Pool;
-                error();
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                    Registers::trace.tag = Error_Null_Pool;
+                    error();
+                }
             }
             #endif
 
@@ -103,8 +114,10 @@ namespace Memory {
 
             #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_POOL)
             if (chunk == nullptr) {
-                Registers::trace.tag = Error_Null_Pool;
-                error();
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                    Registers::trace.tag = Error_Null_Pool;
+                    error();
+                }
             }
             #endif
             return POOL_NODE_CHUNK(POOL_CHUNK_NODE(chunk)->cdr);
@@ -114,8 +127,10 @@ namespace Memory {
 
             #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_POOL)
             if (chunk_car == nullptr) {
-                Registers::trace.tag = Error_Null_Pool;
-                error();
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                    Registers::trace.tag = Error_Null_Pool;
+                    error();
+                }
             }
             #endif
 

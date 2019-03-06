@@ -19,22 +19,34 @@ namespace Task {
         task->impl.maximum  = 0;
         task->impl.instance = instance_count++;
 
+        if (Registers::current_task != nullptr) {
+            task->impl.last = Registers::current_task->impl.last;
+        } else {
+            task->impl.last = 0;
+        }
+
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Def_Task;
             Registers::trace.def.task.handle = handle;
             Registers::trace.def.task.instance = task->impl.instance;
             trace();
+        }
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (fn == nullptr) {
-            Registers::trace.tag = Error_Invalid_Task;
-            Registers::trace.error.invalid_task.instance = task->impl.instance;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Invalid_Task;
+                Registers::trace.error.invalid_task.instance = task->impl.instance;
+                error();
+            }
         }
         if (instance_count > RTOS_MAX_TASKS) {
-            Registers::trace.tag = Error_Max_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Max_Task;
+                error();
+            }
         }
         #endif
 
@@ -45,21 +57,27 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         if (
             (task->events && task->period_ms) ||
             (task->events && task->delay_ms)
         ) {
-            Registers::trace.tag = Error_Invalid_Task;
-            Registers::trace.error.invalid_task.instance = task->impl.instance;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Invalid_Task;
+                Registers::trace.error.invalid_task.instance = task->impl.instance;
+                error();
+            }
         }
         if (task->events & taken_events) {
-            Registers::trace.tag = Error_Duplicate_Event;
-            Registers::trace.error.duplicate_event.event = task->events & taken_events;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Duplicate_Event;
+                Registers::trace.error.duplicate_event.event = task->events & taken_events;
+                error();
+            }
         }
         taken_events |= task->events;
         #endif
@@ -77,46 +95,57 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         #endif
 
         Event_t save = task->events;
-        Registers::triggers |= (Registers::events & save);
 
         // Atomically update events
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            Registers::triggers |= (Registers::events & save);
             Registers::events = (Registers::events & ~save);
         }
 
         i64 now = Task::time_next(task);
 
         // Check for miss
-        if (Time::now() > now) {
-            Registers::trace.tag = Error_Missed;
-            Registers::trace.error.missed.instance = task->impl.instance;
-            error();
+        if (!save && Time::now() > now) {
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Missed;
+                Registers::trace.error.missed.instance = task->impl.instance;
+                error();
+            }
         }
 
-        // Reset delay
+        // Set the current task
+        Registers::current_task = task;
+        // Reset delay and update time
         task->delay_ms = 0;
+        task->impl.last = now;
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Start;
             Registers::trace.mark.start.time = Time::now();
             Registers::trace.mark.start.instance = task->impl.instance;
             trace();
+        }
         #endif
 
         // Run task
         bool result = task->fn(task);
 
         #ifdef RTOS_TRACE
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             Registers::trace.tag = Mark_Stop;
             Registers::trace.mark.stop.time = Time::now();
             Registers::trace.mark.stop.instance = task->impl.instance;
             trace();
+        }
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
@@ -124,14 +153,15 @@ namespace Task {
             (task->events && task->period_ms) ||
             (task->events && task->delay_ms)
         ) {
-            Registers::trace.tag = Error_Invalid_Task;
-            Registers::trace.error.invalid_task.instance = task->impl.instance;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Invalid_Task;
+                Registers::trace.error.invalid_task.instance = task->impl.instance;
+                error();
+            }
         }
         #endif
 
         // Update fields
-        task->impl.last = now;
         task->impl.maximum = max(task->impl.maximum, Time::now() - now);
 
         if (save) {
@@ -159,9 +189,11 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task->events & taken_events) {
-            Registers::trace.tag = Error_Duplicate_Event;
-            Registers::trace.error.duplicate_event.event = task->events & taken_events;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Duplicate_Event;
+                Registers::trace.error.duplicate_event.event = task->events & taken_events;
+                error();
+            }
         }
         taken_events |= task->events;
         #endif
@@ -183,8 +215,10 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         #endif
 
@@ -204,8 +238,10 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         #endif
 
@@ -232,8 +268,10 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         #endif
         return task->impl.last + task->period_ms + task->delay_ms;
@@ -243,8 +281,10 @@ namespace Task {
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (task == nullptr) {
-            Registers::trace.tag = Error_Null_Task;
-            error();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                Registers::trace.tag = Error_Null_Task;
+                error();
+            }
         }
         #endif
 

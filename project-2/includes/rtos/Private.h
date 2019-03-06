@@ -11,8 +11,18 @@ namespace RTOS {
 
     namespace Registers {
 
+        // A value that will be set with the bitwise ORed values of all active
+        // events
+        extern volatile Event_t events;
+
+        // The last trace that occured.
+        extern volatile Trace_t trace;
+
         // Memory pool used for the allocation of tasks
         extern Memory::Pool_t * task_pool;
+
+        // Current task being run
+        extern Task_t * current_task;
 
         // Head of a task list used for periodic tasks
         extern Task_t * periodic_tasks;
