@@ -44,7 +44,7 @@ namespace Trace {
             for (u16 i = 0; i < sizeof(Trace_t); i++) {
                 Serial.write(trace_buffer[i]);
             }
-            if (trace->tag < Mark_Init) {
+            if (trace->tag < Mark_Init || trace->tag == Debug_Message) {
                 Serial.print(trace->def.handle);
                 Serial.write('\0');
             }

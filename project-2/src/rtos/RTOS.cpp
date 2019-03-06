@@ -103,6 +103,10 @@ namespace RTOS {
             trace();
         #endif 
 
+        #ifdef RTOS_USE_ARDUINO
+            Serial.flush();
+        #endif
+
         exit(0);
     }
 

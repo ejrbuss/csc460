@@ -48,7 +48,7 @@ TAG_FIELDS = [
     [],                     # Error_Invalid_Task
     ['event'],              # Error_Duplicate_Event
     ['instance'],           # Error_Missed
-    ['handle'],             # Debug_Message
+    ['message'],             # Debug_Message
 ]
 
 sizeof_trace = None 

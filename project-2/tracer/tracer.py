@@ -105,7 +105,7 @@ def trace(serial):
             elif trace.name == 'Mark_Wake':
                 rising_edge(trace.time, -1, state)
             elif trace.name == 'Debug_Message':
-                print(trace.message)
+                print(trace.message, end='', flush=True)
 
             trace = decode_trace(serial)
 

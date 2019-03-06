@@ -1,6 +1,7 @@
 #include "Base.h"
 #include "Peripherals.h"
 #include <RTOS.h>
+#include <Test.h>
 
 bool task_led_on_fn(RTOS::Task_t * task) {
     digitalWrite(LED_BUILTIN, 0);
@@ -13,6 +14,17 @@ bool task_led_off_fn(RTOS::Task_t * task) {
 }
 
 int main() {
+    Test::Schedule_t schedule[] = {
+        { 500,  "task_led_on" },
+        { 750,  "task_led_off" },
+        { 1000, "task_led_on" },
+        { 1250, "task_led_off" },
+        { 1500, "task_led_on" },
+        { 1750, "task_led_off" },
+        { 2000, "task_led_on" },
+        { 0 },
+    };
+    Test::schedule(schedule);
     RTOS::init();
     pinMode(LED_BUILTIN, OUTPUT);
     RTOS::Task_t * task_led_on = RTOS::Task::init("task_led_on", task_led_on_fn);
@@ -28,10 +40,9 @@ int main() {
 
 namespace RTOS {
 namespace UDF {
-
-    void trace(Trace_t * trace) {
+    void trace(Trace_t * trace) { 
         Trace::serial_trace(trace);
+        Test::schedule_trace(trace);
     }
     bool error(Trace_t * trace) { return true; }
-
 }}

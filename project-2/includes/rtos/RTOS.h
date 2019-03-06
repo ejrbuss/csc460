@@ -74,7 +74,12 @@ namespace RTOS {
     void error();
 
     /**
-     * Creates a message trace with the provided format (ala printf).
+     * Creates a message trace with the provided format (ala printf), but MUST
+     * be postfixed with a zero argument.
+     * 
+     * eg.
+     * 
+     *    debug_print("(%s: %d)", name, value, 0);
      * 
      * @param char * fmt the string format
      * @param ...        format args

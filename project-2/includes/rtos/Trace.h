@@ -65,6 +65,7 @@ namespace RTOS {
                 struct { const char * handle; u16 bytes; } alloc;
             } def;
             union {
+                struct { u64 time; };
                 struct { u64 time; u16 heap; } init;
                 struct { u64 time; } halt;
                 struct { u64 time; u8 instance; } start;
