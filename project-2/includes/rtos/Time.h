@@ -6,6 +6,11 @@
 namespace RTOS {
 namespace Time {
 
+    /**
+     * Initializes timer1 and configures it to interrupt every millisecond.
+     */
+    void init();
+
         // TODO manage current time manually
         // Could reimplment millis using a timer
         // milliseconds are probably as acccurate as we want to be
@@ -30,6 +35,12 @@ namespace Time {
      * @returns i64 the current time
      */
     i64 now();
+    
+    /**
+     * Puts the processor into Idle Mode.
+     * Will wake up if interrupted.
+     */
+    void idle_mode();
 
     /**
      * Idles for `time` from `from`. If time has already passed the idle time

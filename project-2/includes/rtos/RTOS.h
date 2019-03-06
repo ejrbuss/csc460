@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <util/atomic.h>
 #include <Arduino.h> // TODO remove this ugly dependency
+#include <avr/sleep.h>
 
 //
 // Macros

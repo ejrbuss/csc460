@@ -87,6 +87,8 @@ namespace RTOS {
             sizeof(Task_t), 
             RTOS_MAX_TASKS
         );
+        
+        Time::init();
     }
 
     void halt() {
