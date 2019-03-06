@@ -5,7 +5,6 @@
 
 #include <stdlib.h>
 #include <util/atomic.h>
-#include <Arduino.h> // TODO remove this ugly dependency
 #include <avr/sleep.h>
 
 //
@@ -35,6 +34,11 @@ typedef signed long long i64;
 
 #include "Conf.h"
 #include "CheckConf.h"
+
+#ifdef RTOS_USE_ARDUINO
+    #include "Arduino.h"
+#endif
+
 #include "Event.h"
 #include "Time.h"
 #include "Memory.h"

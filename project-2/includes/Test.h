@@ -3,7 +3,6 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include "Base.h"
 #include "Peripherals.h"
 
 #define assert(cond) (Test::_assert(cond, (#cond)))
@@ -13,7 +12,6 @@ namespace Test {
     LiquidCrystal * lcd;
 
     void init() {
-        init_arduino();
         Serial.begin(9600);
         lcd = init_lcd();
     }

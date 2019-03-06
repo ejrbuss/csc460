@@ -75,6 +75,10 @@ namespace RTOS {
 
     void init() {
 
+        #ifdef RTOS_USE_ARDUINO
+            init_arduino();
+        #endif
+
         #ifdef RTOS_TRACE
             Registers::trace.tag = Mark_Init;
             Registers::trace.mark.init.time = Time::now();
