@@ -1,7 +1,8 @@
-from sys                import argv
+from sys                import argv, stderr
+from json               import dumps
 from serial             import Serial, SerialException
 from datetime           import datetime
-from mekpie.cli         import panic
+from mekpie.cli         import tell, panic
 from mekpie.cache       import project_cache
 from matplotlib.widgets import SpanSelector
 
@@ -29,7 +30,7 @@ def connect():
     port = get_port()
     try:
         serial = Serial(port, BAUD, timeout=1)
-        print(f'Connected to serial port - {port}')
+        tell(f'Connected to serial port - {port}', file=stderr)
         return serial
     except SerialException as ex:
         panic(ex)
@@ -43,6 +44,25 @@ def update(vis, serial):
     trace = decode_trace(serial)
     if trace:
         pass
+
+def json(serial):
+    init_decoder(serial.read(1))
+    first = True
+    print('[')
+    try:
+        while True:
+            trace = decode_trace(serial)
+            if trace:
+                if first:
+                    print(f'    {dumps(trace)}', end='')
+                    first = False
+                else:
+                    print(f',\n    {dumps(trace)}', end='')
+                if trace.name == 'Mark_Halt':
+                    break
+    except KeyboardInterrupt:
+        pass
+    print('\n]')
 
 def trace(serial):
 
@@ -69,24 +89,23 @@ def trace(serial):
     def update(frame, state):
         trace = decode_trace(serial)
         while trace:
-            (tag_name, _, arg1, arg2) = trace
-            
-            if tag_name == 'Def_Task':
-                name, instance = arg1, arg2
-                state.tasks.append(([0], [low(instance)]))
-                state.tasks_lookup.append(name)
-            elif tag_name == 'Mark_Init':
-                state.time = arg1
-                state.tasks.append(([0, arg1], [1, 1]))
+            if trace.name == 'Def_Task':
+                state.tasks.append(([0], [low(trace.instance)]))
+                state.tasks_lookup.append(trace.handle)
+            elif trace.name == 'Mark_Init':
+                state.time = trace.time
+                state.tasks.append(([0, trace.time], [1, 1]))
                 state.tasks_lookup.append('RTOS')
-            elif tag_name == 'Mark_Start':
-                rising_edge(arg1, arg2, state)
-            elif tag_name =='Mark_Stop':
-                falling_edge(arg1, arg2, state)
-            elif tag_name == 'Mark_Idle':
-                falling_edge(arg1, -1, state)
-            elif tag_name == 'Mark_Wake':
-                rising_edge(arg1, -1, state)
+            elif trace.name == 'Mark_Start':
+                rising_edge(trace.time, trace.instance, state)
+            elif trace.name =='Mark_Stop':
+                falling_edge(trace.time, trace.instance, state)
+            elif trace.name == 'Mark_Idle':
+                falling_edge(trace.time, -1, state)
+            elif trace.name == 'Mark_Wake':
+                rising_edge(trace.time, -1, state)
+            elif trace.name == 'Debug_Message':
+                print(trace.message)
 
             trace = decode_trace(serial)
 
@@ -94,14 +113,16 @@ def trace(serial):
     visualize(update)
 
 def main(args=argv):
-    print(argv)
+    tell(f'Arguments - {argv}', file=stderr)
     command = argv[1] if len(argv) > 1 else 'trace'
     try:
         with connect() as serial:
             try:
                 if command == 'rpl':
                     rpl(serial)
-                if command == 'trace':
+                elif command == 'json':
+                    json(serial)
+                elif command == 'trace':
                     trace(serial)
                 else:
                     panic(f'Uknown command `{commands}`!')

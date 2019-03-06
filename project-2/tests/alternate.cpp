@@ -41,6 +41,10 @@ namespace UDF {
             Serial.print(trace->def.handle);
             Serial.write('\0');
         }
+        if (trace->tag == Debug_Message) {
+            Serial.print(trace->debug.message);
+            Serial.write('\0');
+        }
     }
     bool error(Trace_t * trace) { return true; }
 

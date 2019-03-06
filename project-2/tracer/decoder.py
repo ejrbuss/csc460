@@ -1,4 +1,7 @@
-from struct import unpack, calcsize
+from sys           import stderr
+from struct        import unpack, calcsize
+from mekpie.cli    import tell
+from mekpie.record import RecordClass
 
 BYTE_ORDER   = '='
 TAG_NAMES    = [
@@ -22,13 +25,39 @@ TAG_NAMES    = [
     'Error_Invalid_Task',
     'Error_Duplicate_Event',
     'Error_Missed',
+    'Debug_Message',
+]
+TAG_FIELDS = [
+    ['handle', 'instance'], # Def_Task
+    ['handle', 'event'],    # Def_Event
+    ['handle', 'bytes'],    # Def_Alloc
+    ['time', 'heap'],       # Mark_Init
+    ['time'],               # Mark_Halt
+    ['time', 'instance'],   # Mark_Start
+    ['time', 'instance'],   # Mark_Stop
+    ['time', 'event'],      # Mark_Event
+    ['time'],               # Mark_Idle
+    ['time'],               # Mark_Wake
+    [],                     # Error_Max_Event
+    ['event'],              # Error_Undefined_Event
+    [],                     # Error_Max_Alloc
+    [],                     # Error_Max_Pool
+    [],                     # Error_Null_Pool
+    [],                     # Error_Max_Task
+    [],                     # Error_Null_Task
+    [],                     # Error_Invalid_Task
+    ['event'],              # Error_Duplicate_Event
+    ['instance'],           # Error_Missed
+    ['handle'],             # Debug_Message
 ]
 
 sizeof_trace = None 
 tag_format   = None
-foramts      = None
+formats      = None
 
-padding = [None]
+def init_trace(tag_name, fields):
+    field_names = ['name', 'tag'] + TAG_FIELDS[fields[0]]
+    return RecordClass(dict(zip(field_names, [tag_name] + list(fields))))
 
 def init_decoder(event_bytes):
     global sizeof_trace, tag_format, formats
@@ -60,8 +89,9 @@ def init_decoder(event_bytes):
         f'{BYTE_ORDER}HB',    # Error_Invalid_Task
         f'{BYTE_ORDER}H{E}',  # Error_Duplicate_Event
         f'{BYTE_ORDER}HB',    # Error_Missed
+        f'{BYTE_ORDER}H',     # Debug_Message
     ]
-    print(f'Initialized decoder - (sizeof trace: {sizeof_trace} sizeof event: {sizeof_event})')
+    tell(f'Initialized decoder - (sizeof trace: {sizeof_trace} sizeof event: {sizeof_event})', file=stderr)
 
 def decode_cstring(serial):
     buffer = ''
@@ -80,8 +110,7 @@ def decode_trace(serial):
         byte_foramt = formats[tag]
         fields = unpack(byte_foramt, trace_bytes[:calcsize(byte_foramt)])
         # Check if we need to read the handler
-        if tag_name.startswith('Def'):
+        if tag_name.startswith('Def') or tag_name == 'Debug_Message':
             fields = (fields[0], decode_cstring(serial), *fields[2:])
-        trace = (tag_name, *fields, *(padding * (3 - len(fields))))
-        print(trace)
+        trace = init_trace(tag_name, fields)
         return trace

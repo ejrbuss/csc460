@@ -219,6 +219,7 @@ namespace Task {
                 Task_t * cdr = Task::cdr(tasks);
                 if (cdr == nullptr || Task::time_next(cdr) > time_next) {
                     Memory::Pool::cons(tasks, task);
+                    Memory::Pool::cons(task, cdr);
                     break;
                 }
                 tasks = cdr;

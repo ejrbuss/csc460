@@ -166,5 +166,4 @@ def visualize(update, *fargs):
         rectprops=dict(alpha=0.5, facecolor='red')
     )
     ani  = FuncAnimation(fig, animate),
-    
-    pyplot.show()   
+    pyplot.show()

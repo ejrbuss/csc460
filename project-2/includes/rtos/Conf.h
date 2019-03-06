@@ -27,4 +27,7 @@
 // #define RTOS_CHECK_EVENT // Check bounds on event definitiom
 // #define RTOS_CHECK_TASK  // Check bounds on task definition
 
+// Max string buffer size for debug_print(...)
+#define RTOS_MESSAGE_BUFFER 256
+
 #endif /* RTOS_CONF */
