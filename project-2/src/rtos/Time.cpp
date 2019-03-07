@@ -22,6 +22,9 @@ namespace Time {
             TCCR1B |= BV(CS11) | BV(CS10); // Scale by 64
             TIMSK1 |= BV(OCIE1A);          // Enable timer compare interrupt
         }
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+            timer1_millis = 0;
+        }
     }
 
     i64 now() {

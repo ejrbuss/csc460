@@ -3,6 +3,8 @@
 #ifndef RTOS_H
 #define RTOS_H
 
+#include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -76,12 +78,11 @@ namespace RTOS {
     void error();
 
     /**
-     * Creates a message trace with the provided format (ala printf), but MUST
-     * be postfixed with a zero argument.
+     * Creates a message trace with the provided format (ala printf).
      * 
      * eg.
      * 
-     *    debug_print("(%s: %d)", name, value, 0);
+     *    debug_print("(%s: %d)", name, value);
      * 
      * @param char * fmt the string format
      * @param ...        format args

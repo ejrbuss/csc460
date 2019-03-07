@@ -14,6 +14,8 @@ bool task_led_off_fn(RTOS::Task_t * task) {
 
 int main() {
     Test::Schedule_t schedule[] = {
+        { 0,    "task_led_on" },
+        { 250,  "task_led_off" },
         { 500,  "task_led_on" },
         { 750,  "task_led_off" },
         { 1000, "task_led_on" },
@@ -21,9 +23,9 @@ int main() {
         { 1500, "task_led_on" },
         { 1750, "task_led_off" },
         { 2000, "task_led_on" },
-        { 0 },
+        { -1 },
     };
-    Test::schedule(schedule);
+    Test::set_schedule(schedule);
     RTOS::init();
     pinMode(LED_BUILTIN, OUTPUT);
     RTOS::Task_t * task_led_on = RTOS::Task::init("task_led_on", task_led_on_fn);

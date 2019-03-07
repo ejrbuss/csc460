@@ -113,6 +113,7 @@ namespace RTOS {
         i16 delay_ms;   // The delay before this task is scheduled
         // "hidden" fields
         struct {
+            bool first;
             u8 instance; // Used to identify a task during a trace
             i64 last;    // The last time this task was run
             i16 maximum; // The average runtime of this task

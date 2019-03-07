@@ -12,13 +12,14 @@ bool task_led_fn(RTOS::Task_t * task) {
 
 int main() {
     Test::Schedule_t schedule[] = {
+        { 0,    "task_led", },
         { 500,  "task_led", },
         { 1000, "task_led", },
         { 1500, "task_led", },
         { 2000, "task_led", },
-        { 0 },
+        { -1 },
     };
-    Test::schedule(schedule);
+    Test::set_schedule(schedule);
     RTOS::init();
     pinMode(LED_BUILTIN, OUTPUT);
     RTOS::Task_t * task_led = RTOS::Task::init("task_led", task_led_fn);

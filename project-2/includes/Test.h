@@ -12,14 +12,14 @@ namespace Test {
 
     typedef struct Schedule_t Schedule_t;
     struct Schedule_t {
-        u64 time;
+        i64 time;
         const char * handle;
-        u8 instance;
+        volatile u8 instance;
     };
 
     static LiquidCrystal * lcd = nullptr;
-    static Schedule_t * schedule_list = nullptr;
-    static u8 schedule_num = 0;
+    static Schedule_t * schedule;
+    static u8 task_count = 0;
 
     void _assert(bool cond, const char * cond_token) {
         if (lcd == nullptr) {
@@ -37,27 +37,27 @@ namespace Test {
         }
     }
 
-    void schedule(Schedule_t * list) {
-        schedule_list = list;
+    void set_schedule(Schedule_t * s) {
+        schedule = s;
     }
 
     void schedule_trace(RTOS::Trace_t * trace) {
         switch (trace->tag) {
             case RTOS::Def_Task: {
                 int i;
-                for (i = 0; schedule_list[i].time != 0; i++) {
-                    if (schedule_list[i].handle == trace->def.handle) {
-                        schedule_list[i].instance = trace->def.task.instance;
+                for (i = 0; schedule[i].time != -1; i++) {
+                    if (schedule[i].handle == trace->def.handle) {
+                        schedule[i].instance = trace->def.task.instance;
                     }
                 }
                 break;
             }
             case RTOS::Mark_Start: {
-                assert(schedule_list[schedule_num].instance == trace->mark.start.instance
-                    && schedule_list[schedule_num].time == trace->mark.start.time
+                assert(schedule[task_count].instance == trace->mark.start.instance
+                    && schedule[task_count].time == trace->mark.start.time
                 );
-                schedule_num++;
-                if (schedule_list[schedule_num].time == 0) {
+                task_count++;
+                if (schedule[task_count].time == -1) {
                     RTOS::debug_print("\nSchedule passed.\n");
                     RTOS::halt();
                 }

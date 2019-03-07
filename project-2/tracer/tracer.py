@@ -43,6 +43,8 @@ def rpl(serial):
         if trace:
             if trace.name == 'Debug_Message':
                 print(trace.message, end='', flush=True)
+            if trace.name == 'Mark_Halt':
+                return
 
 def update(vis, serial):
     trace = decode_trace(serial)

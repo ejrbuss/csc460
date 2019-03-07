@@ -21,6 +21,9 @@ namespace RTOS {
     }
 
     void dispatch() {
+
+        Time::init();
+
         for (;;) {
  
             i64 this_time = Time::now();
@@ -94,8 +97,6 @@ namespace RTOS {
             sizeof(Task_t), 
             RTOS_MAX_TASKS
         );
-        
-        Time::init();
     }
 
     void halt() {
@@ -138,11 +139,11 @@ namespace RTOS {
             va_list args;
             va_start(args, fmt);
             vsnprintf(buffer, RTOS_MESSAGE_BUFFER, fmt, args);
+            va_end(args);
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 RTOS::Registers::trace.tag = Debug_Message;
                 RTOS::Registers::trace.debug.message = buffer;
                 trace();
-                va_end(args);
             }
         #endif
     }

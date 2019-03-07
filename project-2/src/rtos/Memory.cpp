@@ -120,7 +120,11 @@ namespace Memory {
                 }
             }
             #endif
-            return POOL_NODE_CHUNK(POOL_CHUNK_NODE(chunk)->cdr);
+            Pool_Node_t * node = POOL_CHUNK_NODE(chunk);
+            if (node->cdr == nullptr) {
+                return nullptr;
+            }
+            return POOL_NODE_CHUNK(node->cdr);
         }
 
         void * cons(void * chunk_car, void * chunk_cdr) {

@@ -15,6 +15,7 @@ namespace Task {
         task->events        = 0;
         task->period_ms     = 0;
         task->delay_ms      = 0;
+        task->impl.first    = true;
         task->impl.last     = 0;
         task->impl.maximum  = 0;
         task->impl.instance = instance_count++;
@@ -163,6 +164,7 @@ namespace Task {
 
         // Update fields
         task->impl.maximum = max(task->impl.maximum, Time::now() - now);
+        task->impl.first = false;
 
         if (save) {
             if (!task->events || !result) {
@@ -274,6 +276,11 @@ namespace Task {
             }
         }
         #endif
+
+        if (task->impl.first) {
+            return task->delay_ms;
+        }
+
         return task->impl.last + task->period_ms + task->delay_ms;
     }
 
