@@ -6,14 +6,14 @@ DONE 1. A single periodic task runs when it is supposed to, with nothing else go
 DONE 2. Multiple periodic tasks that do not overlap run when they are supposed to and succeed.
 DONE 3. A single periodic task with an offset runs when it is supposed to.
 DONE 4. Two periodic tasks that overlap cause an error.
-
-37. Two periodic tests that overlap but can both finish within one millisecond work fine.
-20. Test the ordering of delayed tasks.
+5. Two periodic tests that overlap but can both finish within one millisecond work fine.
+6. Test the ordering of delayed tasks.
      - Create one delayed task to run at 500
      - Create one delayed task to run at 300
      - Start the OS
      - Assert that they were inserted into the list and ran in the correct order.
-4. Two instances of a task have and use their correct state structures.
+7. Two instances of a task have and use their correct state structures.
+
 9. An event going off makes the corresponding event-driven task go off, with nothing else going on.
 11. An interrupt goes off during a periodic task. What happens?
 12. An interrupt goes off during a delayed task. What happens?
@@ -60,7 +60,7 @@ DONE 4. Two periodic tasks that overlap cause an error.
 DONE 1. Event unit testing 
      - Creating too many events.
 DONE 2. Memory unit testing
-DON 3. Task unit teseting
+DONE 3. Task unit teseting
      - Creating a periodic task puts it in the periodic_tasks list.
      - Creating a delayed task puts it in the delayed_tasks list.
      - Creating an event-driven task puts it in the events_tasks list.
