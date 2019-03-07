@@ -1,15 +1,20 @@
 List of Possible Things to Test
 
+--- SCHEDULE TESTS ---
+
 DONE 1. A single periodic task runs when it is supposed to, with nothing else going on.
 DONE 2. Multiple periodic tasks that do not overlap run when they are supposed to and succeed.
-3. Two periodic tasks that overlap cause an error.
+DONE 3. A single periodic task with an offset runs when it is supposed to.
+DONE 4. Two periodic tasks that overlap cause an error.
+
+37. Two periodic tests that overlap but can both finish within one millisecond work fine.
+20. Test the ordering of delayed tasks.
+     - Create one delayed task to run at 500
+     - Create one delayed task to run at 300
+     - Start the OS
+     - Assert that they were inserted into the list and ran in the correct order.
 4. Two instances of a task have and use their correct state structures.
-UNIT 5. Creating a periodic task puts it in the periodic_tasks list.
-UNIT 6. Creating a delayed task puts it in the delayed_tasks list.
-UNIT 7. Creating an event-driven task puts it in the events_tasks list.
-NO 8. An ISR sets the correct event bit.
 9. An event going off makes the corresponding event-driven task go off, with nothing else going on.
-NO 10. An interrupt goes off during a context switch. What happens?
 11. An interrupt goes off during a periodic task. What happens?
 12. An interrupt goes off during a delayed task. What happens?
 13. Sequence of events:
@@ -23,8 +28,6 @@ NO 10. An interrupt goes off during a context switch. What happens?
     because there is enough time for it to run.
 14. One periodic task. Many delayed tasks and event-driven tasks to try to overload the time between
     periods. Assert that the scheduler still runs the periodic task on time.
-DONE 15. Creating too many events.
-UNIT 16. Creating too many tasks.
 17. Sequence of events:
      - periodic task runs
      - interrupt goes off
@@ -34,12 +37,6 @@ UNIT 16. Creating too many tasks.
     This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
     when it knows it has enough time to.
 18. Dispatch an event before the OS is dispatched. Should remember it and handle it.
-NO 19. An interrupt goes off during tracing.
-20. Test the ordering of delayed tasks.
-     - Create one delayed task to run at 500
-     - Create one delayed task to run at 300
-     - Start the OS
-     - Assert that they were inserted into the list and ran in the correct order.
 21. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
 22. A delayed task that terminates is ran once and then never again.
 23. A delayed task that creates itself is ran twice, or multiple times.
@@ -49,14 +46,29 @@ NO 19. An interrupt goes off during tracing.
 27. A delayed task can become an event-driven task.
 28. An event-driven task can become a delayed task.
 29. If I missed any other combinations of the above tests...
-UNIT 30. Assert that you cannot create two tasks that listen to the same event.
 31. A periodic task that wants to become an event-driven task cannot if the event it wants to listen
     to is already taken. Error should be issued when you try to dispatch the task.
-32. A single periodic task with an offset runs when it is supposed to.
-NO 33. Multiple periodic tasks with offsets run when they are supposed to.
 34. A delayed task that is scheduled to go off during a periodic task does not preempt the periodic task
     but does correctly run later when it has time.
 35. A task's state stays the same when it is switched between task types.
 36. If the user creates enough tasks that there is no idle time and tasks miss their deadlines, errors
     will go off. Ex: periodic task A at 500, periodic task B at 501, but task A takes too long.
-37. Two periodic tests that overlap but can both finish within one millisecond work fine.
+
+
+--- UNIT TESTS ---
+
+DONE 1. Creating too many events.
+UNIT 2. Creating too many tasks.
+
+UNIT 5. Creating a periodic task puts it in the periodic_tasks list.
+UNIT 6. Creating a delayed task puts it in the delayed_tasks list.
+UNIT 7. Creating an event-driven task puts it in the events_tasks list.
+UNIT 30. Assert that you cannot create two tasks that listen to the same event.
+
+
+--- DECIDEDLY NO TESTS ---
+
+NO 8. An ISR sets the correct event bit.
+NO 10. An interrupt goes off during a context switch. What happens?
+NO 19. An interrupt goes off during tracing.
+NO 33. Multiple periodic tasks with offsets run when they are supposed to.

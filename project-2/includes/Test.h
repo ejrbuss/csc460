@@ -54,7 +54,7 @@ namespace Test {
             }
             case RTOS::Mark_Start: {
                 assert(schedule[task_count].instance == trace->mark.start.instance
-                    && schedule[task_count].time == trace->mark.start.time
+                    && (u64) schedule[task_count].time == trace->mark.start.time
                 );
                 task_count++;
                 if (schedule[task_count].time == -1) {
