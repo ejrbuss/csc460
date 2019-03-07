@@ -8,7 +8,6 @@ namespace Task {
     static Event_t taken_events = 0;
 
     Task_t * init(const char * handle, task_fn_t fn) {
-
         Task_t * task = (Task_t *) Memory::Pool::alloc(Registers::task_pool);
         task->fn            = fn;
         task->state         = nullptr;
@@ -65,7 +64,8 @@ namespace Task {
         }
         if (
             (task->events && task->period_ms) ||
-            (task->events && task->delay_ms)
+            (task->events && task->delay_ms) ||
+            (!task->events && !task->period_ms && !task->delay_ms)
         ) {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 Registers::trace.tag = Error_Invalid_Task;
@@ -89,6 +89,9 @@ namespace Task {
             Registers::delayed_tasks = Task::insert_ordered(Registers::delayed_tasks, task);
         } else {
             Registers::event_tasks_tail = Task::insert_tail(Registers::event_tasks_tail, task);
+            if (Registers::event_tasks == nullptr) {
+                Registers::event_tasks = Registers::event_tasks_tail;
+            }
         }
     }
 
@@ -232,7 +235,9 @@ namespace Task {
     }
 
     Task_t * insert_tail(Task_t * tasks_tail, Task_t * task) {
-        Memory::Pool::cons(tasks_tail, task);
+        if (tasks_tail != nullptr) {
+            Memory::Pool::cons(tasks_tail, task);
+        }
         return task;
     }
 

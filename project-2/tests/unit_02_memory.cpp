@@ -55,6 +55,11 @@ int main() {
     // Allocate too many chubnks
     Memory::Pool::alloc(my_pool);
 
+    // Pass nullptr to Pool functions
+    Memory::Pool::dealloc(nullptr, nullptr);
+    Memory::Pool::cdr(nullptr);
+    Memory::Pool::cons(nullptr, nullptr);
+
     RTOS::halt();
     return 0;
 }
@@ -75,6 +80,11 @@ namespace UDF {
                 break;
             case 2:
                 assert(t->tag == Error_Max_Pool);
+                break;
+            case 3:
+            case 4:
+            case 5:
+                assert(t->tag == Error_Null_Pool);
                 break;
             default:
                 break;

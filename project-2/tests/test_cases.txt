@@ -57,13 +57,15 @@ DONE 4. Two periodic tasks that overlap cause an error.
 
 --- UNIT TESTS ---
 
-DONE 1. Creating too many events.
-UNIT 2. Creating too many tasks.
-
-UNIT 5. Creating a periodic task puts it in the periodic_tasks list.
-UNIT 6. Creating a delayed task puts it in the delayed_tasks list.
-UNIT 7. Creating an event-driven task puts it in the events_tasks list.
-UNIT 30. Assert that you cannot create two tasks that listen to the same event.
+DONE 1. Event unit testing 
+     - Creating too many events.
+DONE 2. Memory unit testing
+DON 3. Task unit teseting
+     - Creating a periodic task puts it in the periodic_tasks list.
+     - Creating a delayed task puts it in the delayed_tasks list.
+     - Creating an event-driven task puts it in the events_tasks list.
+     - Assert that you cannot create two tasks that listen to the same event.
+     - Creating too many tasks.
 
 
 --- DECIDEDLY NO TESTS ---

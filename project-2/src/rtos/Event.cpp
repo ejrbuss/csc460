@@ -44,7 +44,7 @@ namespace Event {
         #endif
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_EVENT)
-        if (e > (Event_t) BV(event_count - 1)) {
+        if (e >= (Event_t) BV(event_count)) {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 Registers::trace.tag = Error_Undefined_Event;
                 error();

@@ -74,7 +74,7 @@ namespace Time {
         while(now() - now_time < idle_time && !Registers::events) {
             idle_mode();
         }
-        
+
         #ifdef RTOS_TRACE
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             RTOS::Registers::trace.tag = Mark_Wake;

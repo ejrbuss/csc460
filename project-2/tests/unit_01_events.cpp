@@ -24,8 +24,8 @@ int main() {
     assert(!(Registers::events & e2));
     assert(!(Registers::events & e3));
 
-    // Test undefined disspatched
-    Event::dispatch(e3 + 1);
+    // Test undefined dispatched
+    Event::dispatch(e3 + e3);
 
     // Test creation of too many events
     int i;

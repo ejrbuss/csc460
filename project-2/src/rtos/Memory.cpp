@@ -138,7 +138,9 @@ namespace Memory {
             }
             #endif
 
-            POOL_CHUNK_NODE(chunk_car)->cdr = POOL_CHUNK_NODE(chunk_cdr);
+            if (chunk_cdr != nullptr) {
+                POOL_CHUNK_NODE(chunk_car)->cdr = POOL_CHUNK_NODE(chunk_cdr);
+            }
             return chunk_car;
         }
 
