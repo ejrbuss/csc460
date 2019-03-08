@@ -1,21 +1,72 @@
-from sys                import argv, stderr
-from json               import dumps
-from serial             import Serial, SerialException
-from datetime           import datetime
-from mekpie.cli         import tell, panic
-from mekpie.cache       import project_cache
-from matplotlib.widgets import SpanSelector
+from sys          import stderr
+from time         import sleep
+from json         import dumps
+from bottle       import post, get, request, run
+from serial       import Serial, SerialException
+from pathlib      import Path
+from threading    import Thread
+from mekpie.util  import file_as_str
+from mekpie.cli   import panic
+from mekpie.cache import project_cache
 
-import random
+from .decoder     import init_decoder, decode_trace
 
-from .visualizer import visualize
-from .decoder    import init_decoder, decode_trace
+PORT       = 3000
+BAUD       = 115200
+POLL_DELAY = 0.1
 
-import matplotlib.pyplot as plt
+trace_log   = []
+trace_index = 0
 
-BAUD = 115200
+@get('/')
+def index():
+    return file_as_str(Path(__file__).parent / 'index.html')
 
-def get_port():
+@get('/reset')
+def reset():
+    global trace_index
+    trace_index = 0
+
+@get('/data')
+def data():
+    global trace_index
+    data = {}
+    if len(trace_log) > trace_index:
+        data = trace_log[trace_index]
+        trace_index += 1
+    return dumps(data)
+
+def main():
+    thread = Thread(target=trace_listener)
+    thread.start()
+    run(host='localhost', port=PORT, debug=True)
+    thread.join()
+
+def trace_listener():
+    with connect() as serial:
+        try:
+            ti = trace_iter(serial)
+            print('[\n    ', end='', flush=True)
+            first_trace = next(ti)
+            print(dumps(first_trace), end='', flush=True)
+            for trace in ti:
+                print(',\n    ' + dumps(trace), end='', flush=True)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            print('\n]')
+            serial.read_all()
+
+def connect():
+    port = get_hardware_port()
+    try:
+        serial = Serial(port, BAUD, timeout=1)
+        print(f'Connected to serial port - {port}', file=stderr)
+        return serial
+    except SerialException as ex:
+        panic(ex)
+
+def get_hardware_port():
     with project_cache() as cache:
         port_key = None
         for key in cache.keys():
@@ -26,114 +77,17 @@ def get_port():
         else:
             panic('Could not find port! Are you sure you ran `mekpie run`?')
 
-def connect():
-    port = get_port()
-    try:
-        serial = Serial(port, BAUD, timeout=1)
-        tell(f'Connected to serial port - {port}', file=stderr)
-        return serial
-    except SerialException as ex:
-        panic(ex)
-
-
-def rpl(serial):
+def trace_iter(serial):
     init_decoder(serial.read(1))
     while True:
         trace = decode_trace(serial)
         if trace:
+            trace_log.append(trace)
+            yield trace
             if trace.name == 'Debug_Message':
-                print(trace.message, end='', flush=True)
+                print(trace.message, end='', file=stderr, flush=True)
             if trace.name == 'Mark_Halt':
-                print()
+                print('\nDone.', file=stderr, flush=True)
                 return
-
-def update(vis, serial):
-    trace = decode_trace(serial)
-    if trace:
-        pass
-
-def json(serial):
-    init_decoder(serial.read(1))
-    first = True
-    print('[')
-    try:
-        while True:
-            trace = decode_trace(serial)
-            if trace:
-                if first:
-                    print(f'    {dumps(trace)}', end='')
-                    first = False
-                else:
-                    print(f',\n    {dumps(trace)}', end='')
-                if trace.name == 'Mark_Halt':
-                    break
-    except KeyboardInterrupt:
-        pass
-    print('\n]')
-
-def trace(serial):
-
-    def low(instance):
-        return (instance + 1) * 1.5
-
-    def high(instance):
-        return ((instance + 1) * 1.5) + 1
-
-    def rising_edge(time, instance, state):
-        state.time = time
-        x, y = state.tasks[instance + 1]
-        #x.append(time)
-        #y.append(high(instance))
-        x.extend((time, time))
-        y.extend((low(instance), high(instance)))
-
-    def falling_edge(time, instance, state):
-        state.time = time
-        x, y = state.tasks[instance + 1]
-        x.extend((time, time))
-        y.extend((high(instance), low(instance)))
-
-    def update(frame, state):
-        trace = decode_trace(serial)
-        while trace:
-            if trace.name == 'Def_Task':
-                state.tasks.append(([0], [low(trace.instance)]))
-                state.tasks_lookup.append(trace.handle)
-            elif trace.name == 'Mark_Init':
-                state.time = trace.time
-                state.tasks.append(([0, trace.time], [1, 1]))
-                state.tasks_lookup.append('RTOS')
-            elif trace.name == 'Mark_Start':
-                rising_edge(trace.time, trace.instance, state)
-            elif trace.name =='Mark_Stop':
-                falling_edge(trace.time, trace.instance, state)
-            elif trace.name == 'Mark_Idle':
-                falling_edge(trace.time, -1, state)
-            elif trace.name == 'Mark_Wake':
-                rising_edge(trace.time, -1, state)
-            elif trace.name == 'Debug_Message':
-                print(trace.message, end='', flush=True)
-
-            trace = decode_trace(serial)
-
-    init_decoder(serial.read(1))
-    visualize(update)
-
-def main(args=argv):
-    tell(f'Arguments - {argv}', file=stderr)
-    command = argv[1] if len(argv) > 1 else 'trace'
-    try:
-        with connect() as serial:
-            try:
-                if command == 'rpl':
-                    rpl(serial)
-                elif command == 'json':
-                    json(serial)
-                elif command == 'trace':
-                    trace(serial)
-                else:
-                    panic(f'Uknown command `{commands}`!')
-            finally:
-                serial.read_all()
-    except KeyboardInterrupt:
-        pass
+        else:
+            sleep(POLL_DELAY)

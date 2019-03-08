@@ -1,3 +1,5 @@
+# from .tracer import main
+
 from .tracer import main
 
 # Program entry point for module

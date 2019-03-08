@@ -85,7 +85,7 @@ namespace Task {
 
         if (task->period_ms > 0) {
             Registers::periodic_tasks = Task::insert_ordered(Registers::periodic_tasks, task);
-        } else if (task->delay_ms > 0) {
+        } else if (task->delay_ms > 0 || !task->events) {
             Registers::delayed_tasks = Task::insert_ordered(Registers::delayed_tasks, task);
         } else {
             Registers::event_tasks_tail = Task::insert_tail(Registers::event_tasks_tail, task);
@@ -151,7 +151,6 @@ namespace Task {
             trace();
         }
         #endif
-
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
         if (
             (task->events && task->period_ms) ||
@@ -193,7 +192,7 @@ namespace Task {
         }
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
-        if (task->events & taken_events) {
+        if (task->events & ~save & taken_events) {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 Registers::trace.tag = Error_Duplicate_Event;
                 Registers::trace.error.duplicate_event.event = task->events & taken_events;
@@ -202,7 +201,6 @@ namespace Task {
         }
         taken_events |= task->events;
         #endif
-
         if (!result) {
             Memory::Pool::dealloc(Registers::task_pool, task);                
         } else if (task->period_ms) {
@@ -235,6 +233,7 @@ namespace Task {
     }
 
     Task_t * insert_tail(Task_t * tasks_tail, Task_t * task) {
+        Memory::Pool::cons(task, nullptr);
         if (tasks_tail != nullptr) {
             Memory::Pool::cons(tasks_tail, task);
         }
@@ -301,19 +300,6 @@ namespace Task {
         #endif
 
         return Task::time_next(task) - time_ms;
-    }
-
-    void debug_serial_print(Task_t * task) {
-        if (task == nullptr) {
-            Serial.print("nullptr");
-        } else {
-            Serial.print("{ delay: ");
-            Serial.print(task->delay_ms);
-            Serial.print(" period: ");
-            Serial.print(task->period_ms);
-            Serial.print("}");
-        }
-        Serial.println();
     }
 
 }}

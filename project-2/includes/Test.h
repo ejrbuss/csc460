@@ -42,6 +42,9 @@ namespace Test {
     }
 
     void schedule_trace(RTOS::Trace_t * trace) {
+        if (schedule == nullptr) {
+            return;
+        }
         switch (trace->tag) {
             case RTOS::Def_Task: {
                 int i;
@@ -58,7 +61,7 @@ namespace Test {
                 );
                 task_count++;
                 if (schedule[task_count].time == -1) {
-                    RTOS::debug_print("\nSchedule passed.\n");
+                    RTOS::debug_print("\nSchedule passed.");
                     RTOS::halt();
                 }
                 break;

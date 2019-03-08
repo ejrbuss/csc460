@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>RTOS Trace</title>
+        <meta name="description" content="RTOS Trace">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+            let interval;
+            const trace_id = 'trace';
+            const memory_id = 'memory';
+            const log = {};
+            const state = {
+                heap: 0,
+                event: 0,
+                memory_values: [],
+                memory_handles: [],
+                event_to_name: {},
+                instance_to_name: { '-1': 'OS' },
+                current_value: {},
+                current_time: 0,
+            };
+            let num_of_traces = 0;
+
+            // reset the data stream
+            fetch('/reset');
+
+            const get_data = () => {
+                fetch('/data')
+                    .then(response => response.json())
+                    .then(parse_data)
+                    ;
+            };
+
+            const make_graph = (l) => {
+                const traces = [];
+                const layout = {
+                    title: 'Task Uptime',
+                    xaxis: {
+                        rangeslider: {}
+                    }, yaxis: {
+                        fixedrange     : true,
+                        showticklabels : false,
+                    }
+                };
+                for (let i = l - 2; i >= -1; i--) {
+                    traces.push({
+                        y : log[i].y,
+                        x : log[i].x,
+                        mode : 'lines',
+                        name : state.instance_to_name[i],
+                    });
+                }
+                Plotly.react(trace_id, traces, layout);
+            };
+
+            const stamp = () => {
+                const l = Object.keys(state.instance_to_name).length;
+                if (num_of_traces !== l) {
+                    make_graph(l);
+                }
+                const new_xs = [];
+                const new_ys = [];
+                for (let i = -1; i < l - 1; i++) {
+                    const ys = [
+                        state.current_value[i] + (i + 1) * 1.5 + .5,
+                    ];
+                    const xs = [
+                        state.current_time,
+                    ];
+                    log[i].y.push(...ys);
+                    log[i].x.push(...xs);
+                    new_ys.push(ys);
+                    new_xs.push(xs);
+                }
+                const range = [...Array(l).keys()];
+                Plotly.extendTraces(trace_id, {
+                    y: new_ys,
+                    x: new_xs,
+                }, range);
+            };
+
+            const parse_data = (data) => {
+                console.log('received: ', data);
+                if (data.name) {
+                    if (data.name === 'Def_Task') {
+                        log[data.instance] = { x: [], y: [] };
+                        state.instance_to_name[data.instance] = data.handle;
+                        return;
+                    }
+                    if (data.name === 'Def_Event') {
+                        state.event_to_name[data.event] = data.handle;
+                        return;
+                    }
+                    if (data.name === 'Def_Alloc') {
+                        state.memory_values.push(data.bytes);
+                        state.memory_handles.push(data.handle);
+                        state.memory_entries.push([data.handle, data.bytes]);
+                        return;
+                    }
+                    if (data.name === 'Mark_Init') {
+                        log[-1] = { x: [], y: [] };
+                        state.current_time      = data.time;
+                        stamp();
+                        state.current_value[-1] = 1;
+                        stamp();
+                        state.heap              = data.heap;
+                        return;
+                    }
+                    if (data.name === 'Mark_Halt') {
+                        state.current_time = data.time;
+                        done = true;
+                        stamp();
+                        clearInterval(interval);
+                        return;
+                    }
+                    if (data.name === 'Mark_Start') {
+                        state.current_time = data.time;
+                        stamp();
+                        state.current_value[data.instance] = 1;
+                        stamp();
+                        return;
+                    }
+                    if (data.name === 'Mark_Stop') {
+                        state.current_time = data.time;
+                        stamp();
+                        state.current_value[data.instance] = 0;
+                        stamp();
+                        return;
+                    }
+                    if (data.name === 'Mark_Event') {
+                        state.current_time = data.time;
+                        state.event = data.event;
+                        stamp();
+                        return;
+                    }
+                    if (data.name === 'Mark_Idle') {
+                        state.current_time = data.time;
+                        stamp();
+                        state.current_value[-1] = 0;
+                        stamp();
+                        return;
+                    }
+                    if (data.name === 'Mark_Wake') {
+                        state.current_time = data.time;
+                        stamp();
+                        state.current_value[-1] = 1;
+                        stamp();
+                        return;
+                    }
+                }
+            };
+
+            $(document).ready(() => {
+                interval = setInterval(get_data, 5);   
+            });
+
+            
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Live Trace</a>
+        </nav>
+        <div id="trace"></div>
+        <div id="memory"</div></div>
+    </body>
+</html>
