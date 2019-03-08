@@ -1,6 +1,5 @@
 from sys           import stderr
 from struct        import unpack, calcsize
-from mekpie.cli    import tell
 from mekpie.record import RecordClass
 
 BYTE_ORDER   = '='
@@ -91,7 +90,7 @@ def init_decoder(event_bytes):
         f'{BYTE_ORDER}HB',    # Error_Missed
         f'{BYTE_ORDER}H',     # Debug_Message
     ]
-    tell(f'Initialized decoder - (sizeof trace: {sizeof_trace} sizeof event: {sizeof_event})', file=stderr)
+    print(f'Initialized decoder - (sizeof trace: {sizeof_trace} sizeof event: {sizeof_event})', file=stderr)
 
 def decode_cstring(serial):
     buffer = ''
