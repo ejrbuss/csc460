@@ -1,3 +1,10 @@
+/**
+ * schedule_01
+ * 
+ * Test: 
+ *  A single periodic task with no delay runs when it is supposed to.
+ */
+
 #include <RTOS.h>
 #include <Test.h>
 #include "Peripherals.h"

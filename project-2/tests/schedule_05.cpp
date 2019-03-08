@@ -1,8 +1,12 @@
 /**
- * schedule_02
+ * schedule_05
  * 
- * Test: 
- *  Multiple periodic tasks that do not overlap run when they are supposed to and succeed.
+ * Test:
+ * Test the ordering of delayed tasks.
+ *   - Create one delayed task to run at 500
+ *   - Create one delayed task to run at 300
+ *   - Start the OS
+ *   - Check that they ran in the correct order.
  */
 
 #include <RTOS.h>
@@ -35,13 +39,13 @@ int main() {
     Test::set_schedule(schedule);
     RTOS::init();
     pinMode(LED_BUILTIN, OUTPUT);
-    RTOS::Task_t * task_led_on = RTOS::Task::init("task_led_on", task_led_on_fn);
     RTOS::Task_t * task_led_off = RTOS::Task::init("task_led_off", task_led_off_fn);
-    task_led_on->period_ms = 500;
+    RTOS::Task_t * task_led_on = RTOS::Task::init("task_led_on", task_led_on_fn);
     task_led_off->period_ms = 500;
     task_led_off->delay_ms = 250;
-    RTOS::Task::dispatch(task_led_on);
+    task_led_on->period_ms = 500;
     RTOS::Task::dispatch(task_led_off);
+    RTOS::Task::dispatch(task_led_on);
     RTOS::dispatch();
     return 0;
 }

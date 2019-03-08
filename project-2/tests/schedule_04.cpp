@@ -1,3 +1,10 @@
+/**
+ * schedule_04
+ * 
+ * Test: 
+ *  Two periodic tasks that overlap cause an error.
+ */
+
 #include <RTOS.h>
 #include <Test.h>
 #include "Peripherals.h"
@@ -51,6 +58,7 @@ namespace UDF {
         switch (trace_no) {
             case 1:
                 assert(trace->tag == Error_Missed);
+                RTOS::debug_print("\nTest passed.\n");
                 RTOS::halt();
                 break;
             default:

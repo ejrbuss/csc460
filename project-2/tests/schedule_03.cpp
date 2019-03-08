@@ -1,3 +1,10 @@
+/**
+ * schedule_03
+ * 
+ * Test: 
+ *  A single periodic task with an offset runs when it is supposed to.
+ */
+
 #include <RTOS.h>
 #include <Test.h>
 #include "Peripherals.h"
@@ -16,7 +23,7 @@ int main() {
         { 700,  "task_led", },
         { 1200, "task_led", },
         { 1700, "task_led", },
-        { 0 },
+        { -1 },
     };
     Test::set_schedule(schedule);
     RTOS::init();

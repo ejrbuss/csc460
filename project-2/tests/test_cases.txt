@@ -6,16 +6,15 @@ DONE 1. A single periodic task runs when it is supposed to, with nothing else go
 DONE 2. Multiple periodic tasks that do not overlap run when they are supposed to and succeed.
 DONE 3. A single periodic task with an offset runs when it is supposed to.
 DONE 4. Two periodic tasks that overlap cause an error.
-
-37. Two periodic tests that overlap but can both finish within one millisecond work fine.
-20. Test the ordering of delayed tasks.
+DONE 5. Test the ordering of delayed tasks.
      - Create one delayed task to run at 500
      - Create one delayed task to run at 300
      - Start the OS
      - Assert that they were inserted into the list and ran in the correct order.
-4. Two instances of a task have and use their correct state structures.
-9. An event going off makes the corresponding event-driven task go off, with nothing else going on.
-11. An interrupt goes off during a periodic task. What happens?
+DONE 6. Two instances of a task have and use their correct state structures.
+DONE 7. Dispatch an event before the OS is dispatched. Should remember it and handle it.
+8. An interrupt goes off during a periodic task. What happens?
+
 12. An interrupt goes off during a delayed task. What happens?
 13. Sequence of events:
      - periodic task runs
@@ -36,7 +35,6 @@ DONE 4. Two periodic tasks that overlap cause an error.
      - periodic task runs
     This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
     when it knows it has enough time to.
-18. Dispatch an event before the OS is dispatched. Should remember it and handle it.
 21. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
 22. A delayed task that terminates is ran once and then never again.
 23. A delayed task that creates itself is ran twice, or multiple times.
@@ -70,6 +68,8 @@ DONE 3. Task unit teseting
 
 --- DECIDEDLY NO TESTS ---
 
+NO 5. Two periodic tests that overlap but can both finish within one millisecond work fine.
+NO 8. An event going off makes the corresponding event-driven task go off, with nothing else going on. (duplicated by 7)
 NO 8. An ISR sets the correct event bit.
 NO 10. An interrupt goes off during a context switch. What happens?
 NO 19. An interrupt goes off during tracing.

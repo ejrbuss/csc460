@@ -2,8 +2,6 @@
 #include <RTOS.h>
 #include <Private.h>
 
-int led = 13;
-
 int main() {
     RTOS::init();
 
