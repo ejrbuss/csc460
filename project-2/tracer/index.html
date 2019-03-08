@@ -15,7 +15,6 @@
             const memory_id = 'memory';
             const log = {};
             const state = {
-                heap: 0,
                 event: 0,
                 memory_values: [],
                 memory_handles: [],
@@ -26,17 +25,32 @@
             };
             let num_of_traces = 0;
 
+            let request_num = 0;
+            let MAX_REQUESTS = 200;
+
             // reset the data stream
             fetch('/reset');
 
             const get_data = () => {
+                if (request_num++ > MAX_REQUESTS) {
+                    clearInterval(interval);
+                }
                 fetch('/data')
                     .then(response => response.json())
-                    .then(parse_data)
+                    .then(data_list => data_list.forEach(parse_data))
                     ;
             };
 
-            const make_graph = (l) => {
+            const make_memory = () => {
+                const data = [{
+                    values : state.memory_values,
+                    labels : state.memory_handles,
+                    type   : 'pie',
+                }];
+                Plotly.newPlot(memory_id, data);
+            };
+
+            const make_trace = (l) => {
                 const traces = [];
                 const layout = {
                     title: 'Task Uptime',
@@ -61,7 +75,7 @@
             const stamp = () => {
                 const l = Object.keys(state.instance_to_name).length;
                 if (num_of_traces !== l) {
-                    make_graph(l);
+                    make_trace(l);
                 }
                 const new_xs = [];
                 const new_ys = [];
@@ -85,8 +99,8 @@
             };
 
             const parse_data = (data) => {
-                console.log('received: ', data);
                 if (data.name) {
+                    console.log('received :', data);
                     if (data.name === 'Def_Task') {
                         log[data.instance] = { x: [], y: [] };
                         state.instance_to_name[data.instance] = data.handle;
@@ -97,18 +111,21 @@
                         return;
                     }
                     if (data.name === 'Def_Alloc') {
+                        state.memory_values[0] -= data.bytes;
                         state.memory_values.push(data.bytes);
                         state.memory_handles.push(data.handle);
-                        state.memory_entries.push([data.handle, data.bytes]);
+                        make_memory();
                         return;
                     }
                     if (data.name === 'Mark_Init') {
                         log[-1] = { x: [], y: [] };
-                        state.current_time      = data.time;
+                        state.current_time = data.time;
                         stamp();
                         state.current_value[-1] = 1;
                         stamp();
-                        state.heap              = data.heap;
+                        state.memory_values.push(data.heap);
+                        state.memory_handles.push('Available');
+                        make_memory();
                         return;
                     }
                     if (data.name === 'Mark_Halt') {
@@ -166,7 +183,14 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Live Trace</a>
         </nav>
-        <div id="trace"></div>
-        <div id="memory"</div></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-auto">
+                    <div id="memory"></div>
+                </div>
+                <div class="col-lg-auto">
+                    <div id="trace"></div>
+                </div>
+            </div>
     </body>
 </html>

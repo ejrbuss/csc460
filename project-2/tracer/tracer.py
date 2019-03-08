@@ -1,4 +1,4 @@
-from sys          import stderr
+from sys          import argv, stderr
 from time         import sleep
 from json         import dumps
 from bottle       import post, get, request, run
@@ -14,6 +14,7 @@ from .decoder     import init_decoder, decode_trace
 PORT       = 3000
 BAUD       = 115200
 POLL_DELAY = 0.1
+MAX_TRACES = 200
 
 trace_log   = []
 trace_index = 0
@@ -30,17 +31,22 @@ def reset():
 @get('/data')
 def data():
     global trace_index
-    data = {}
-    if len(trace_log) > trace_index:
-        data = trace_log[trace_index]
-        trace_index += 1
-    return dumps(data)
+    i = trace_index
+    l = len(trace_log)
+    if i < l:
+        trace_index = l
+        return dumps(trace_log[i:l])
+    else:
+        return dumps([])
 
-def main():
-    thread = Thread(target=trace_listener)
-    thread.start()
-    run(host='localhost', port=PORT, debug=True)
-    thread.join()
+def main(args=argv):
+    if len(argv) > 1 and argv[1] == 'noweb':
+        trace_listener()
+    else:
+        thread = Thread(target=trace_listener)
+        thread.start()
+        run(host='localhost', port=PORT, debug=True)
+        thread.join()
 
 def trace_listener():
     with connect() as serial:
@@ -79,14 +85,16 @@ def get_hardware_port():
 
 def trace_iter(serial):
     init_decoder(serial.read(1))
+    trace_count = 0
     while True:
         trace = decode_trace(serial)
         if trace:
+            trace_count += 1
             trace_log.append(trace)
             yield trace
             if trace.name == 'Debug_Message':
                 print(trace.message, end='', file=stderr, flush=True)
-            if trace.name == 'Mark_Halt':
+            if trace.name == 'Mark_Halt' or trace_count > MAX_TRACES:
                 print('\nDone.', file=stderr, flush=True)
                 return
         else:
