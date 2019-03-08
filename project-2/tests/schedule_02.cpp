@@ -1,3 +1,10 @@
+/**
+ * schedule_02
+ * 
+ * Test: 
+ *  Multiple periodic tasks that do not overlap run when they are supposed to and succeed.
+ */
+
 #include <RTOS.h>
 #include <Test.h>
 #include "Peripherals.h"

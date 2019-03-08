@@ -193,7 +193,7 @@ namespace Task {
         }
 
         #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
-        if (task->events & taken_events) {
+        if (task->events & ~save & taken_events) {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 Registers::trace.tag = Error_Duplicate_Event;
                 Registers::trace.error.duplicate_event.event = task->events & taken_events;
@@ -235,6 +235,7 @@ namespace Task {
     }
 
     Task_t * insert_tail(Task_t * tasks_tail, Task_t * task) {
+        Memory::Pool::cons(task, nullptr);
         if (tasks_tail != nullptr) {
             Memory::Pool::cons(tasks_tail, task);
         }
