@@ -4,6 +4,7 @@
  * Test:
  *  An event occurring before the OS is dispatched should be remembered and handled correctly.
  */
+
 #include <RTOS.h>
 #include <Test.h>
 #include "Peripherals.h"
@@ -14,7 +15,6 @@ bool task_event_1_fn(RTOS::Task_t * task) {
 
 int main() {
     RTOS::init();
-    pinMode(LED_BUILTIN, OUTPUT);
 
     RTOS::Event_t e1 = RTOS::Event::init("event 1");
     RTOS::Event::dispatch(e1);
@@ -44,7 +44,7 @@ namespace UDF {
                 // case 6 Def Task
                 case 7:
                     assert(trace->tag == Mark_Start);
-                    RTOS::debug_print("\nTest passed.");
+                    RTOS::debug_print("\nTest passed.\n");
                     RTOS::halt();
                     break;
                 default: 

@@ -22,11 +22,11 @@ bool task_led_fn(RTOS::Task_t * task) {
 
 int main() {
     Test::Schedule_t schedule[] = {
-        { 0,    "task_led_1", 0},
-        { 250,  "task_led_2", 1},
-        { 500,  "task_led_1", 0},
-        { 750,  "task_led_2", 1},
-        { 1000, "task_led_1", 0},
+        { 0,    "task_led_1", },
+        { 250,  "task_led_2", },
+        { 500,  "task_led_1", },
+        { 750,  "task_led_2", },
+        { 1000, "task_led_1", },
         { -1 },
     };
     Test::set_schedule(schedule);

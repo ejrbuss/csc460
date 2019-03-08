@@ -13,7 +13,10 @@ DONE 5. Test the ordering of delayed tasks.
      - Assert that they were inserted into the list and ran in the correct order.
 DONE 6. Two instances of a task have and use their correct state structures.
 DONE 7. Dispatch an event before the OS is dispatched. Should remember it and handle it.
-8. An interrupt goes off during a periodic task. What happens?
+DONE 8. A delayed task that terminates is ran once and then never again.
+DONE 9. A delayed task that runs immediately and then terminates is ran once and then never again.
+DONE 10. A delayed task that creates itself is ran twice, or multiple times.
+11. An interrupt goes off during a periodic task. What happens?
 
 12. An interrupt goes off during a delayed task. What happens?
 13. Sequence of events:
@@ -36,8 +39,6 @@ DONE 7. Dispatch an event before the OS is dispatched. Should remember it and ha
     This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
     when it knows it has enough time to.
 21. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
-22. A delayed task that terminates is ran once and then never again.
-23. A delayed task that creates itself is ran twice, or multiple times.
 24. A periodic task can become an event-driven task correctly.
 25. An event-driven task can become a periodic task correctly.
 26. A periodic task can become a delayed task for one time and then terminate.
