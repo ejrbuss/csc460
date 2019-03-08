@@ -48,9 +48,8 @@ bool task_delayed_fn(RTOS::Task_t * task) {
 }
 
 bool task_periodic_fn(RTOS::Task_t * task) {
-    for(i8 i = 0; i < 1000; i ++) {}
-    for(i8 i = 0; i < 1000; i ++) {}
-    for(i8 i = 0; i < 1000; i ++) {}
+    i64 start_time = RTOS::Time::now();
+    RTOS::Time::idle(start_time, start_time + 30);
     return true;
 }
 
