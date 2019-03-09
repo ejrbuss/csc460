@@ -1,8 +1,8 @@
 /**
- * schedule_01
+ * blink
  * 
  * Test: 
- *  A single periodic task with no delay runs when it is supposed to.
+ *  A single periodic task that blinks an LED forever.
  */
 
 #include <RTOS.h>

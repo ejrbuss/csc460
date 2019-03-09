@@ -1,11 +1,18 @@
 /**
- * schedule_11
+ * schedule_13
  * 
  * Test:
- *  An interrupt goes off during a periodic task.
- *  The periodic task should finish and then the event-driven task should run, 
- *  given that there is enough time for it to finish before the periodic task
- *  goes off again.
+ *   Sequence of events:
+ *   - periodic task runs
+ *   - interrupt goes off
+ *   - periodic task finishes
+ *   - event driven task goes off because the OS doesn't know that it doesn't have enough time for it
+ *   - interrupt goes off again
+ *   - periodic task misses its next deadline
+ *   - event driven task does not run because there is not enough time for it to finish
+ *   - periodic task runs
+ *  This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
+ *  when it knows it has enough time to.
  */
 
 #include <RTOS.h>
@@ -19,7 +26,7 @@ RTOS::Event_t e1;
 ISR(TIMER3_COMPA_vect) {
     static int millis_passed = 0;
     millis_passed++;
-    if (millis_passed == 502) {
+    if (millis_passed == 505) {
         RTOS::Event::dispatch(e1);
     }
 }
@@ -37,6 +44,9 @@ void timer_init() {
 }
 
 bool task_event_1_fn(RTOS::Task_t * task) {
+    i64 now_time = RTOS::Time::now();
+    RTOS::Time::idle(now_time, 500);
+    while(RTOS::Time::now() - now_time < 500) {}
     return true;
 }
 
@@ -47,8 +57,8 @@ bool task_delayed_fn(RTOS::Task_t * task) {
 
 bool task_periodic_fn(RTOS::Task_t * task) {
     i64 now_time = RTOS::Time::now();
-    RTOS::Time::idle(now_time, 30);
-    while(RTOS::Time::now() - now_time < 30) {}
+    RTOS::Time::idle(now_time, 40);
+    while(RTOS::Time::now() - now_time < 40) {}
     return true;
 }
 
@@ -56,8 +66,8 @@ int main() {
     Test::Schedule_t schedule[] = {
         { 0,    "task_delayed",  },
         { 500,  "task_periodic", },
-        { 1000, "task_periodic", },
         { 1500, "task_periodic", },
+        { 2000, "task_periodic", },
         { -1 },
     };
     Test::set_schedule(schedule);
@@ -93,16 +103,24 @@ namespace UDF {
                 case Mark_Event: {
                     i64 this_time = RTOS::Time::now();
                     if(trace->mark.event.event == 0b1) {
-                        assert(this_time >= 500 && this_time <= 530);
+                        assert(this_time >= 500 && this_time <= 540);
                     }
                     return;
                 }
                 case Mark_Start: {
+                    static int trace_no = 0;
+                    trace_no++;
                     i64 this_time = RTOS::Time::now();
-                    if(trace->mark.start.instance == 0) {
-                        assert(this_time < 1000 && this_time >= 530);
-                        return;
-                    } else break;
+                    switch (trace_no) {
+                        case 3:
+                            assert(trace->mark.start.instance == 0 && this_time >= 540 && this_time < 1000);
+                            return;
+                        case 4:
+                            assert(trace->mark.start.instance == 2 && this_time >= 1005);
+                            return;
+                        default:
+                            break;
+                    }
                 }
                 default: 
                     break;

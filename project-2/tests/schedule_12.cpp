@@ -1,11 +1,9 @@
 /**
- * schedule_11
+ * schedule_12
  * 
  * Test:
- *  An interrupt goes off during a periodic task.
- *  The periodic task should finish and then the event-driven task should run, 
- *  given that there is enough time for it to finish before the periodic task
- *  goes off again.
+ *  An interrupt goes off during a delayed task.
+ *  The delayed task should finish and then the event-driven task should run.
  */
 
 #include <RTOS.h>
@@ -19,7 +17,7 @@ RTOS::Event_t e1;
 ISR(TIMER3_COMPA_vect) {
     static int millis_passed = 0;
     millis_passed++;
-    if (millis_passed == 502) {
+    if (millis_passed == 10) {
         RTOS::Event::dispatch(e1);
     }
 }
@@ -42,22 +40,21 @@ bool task_event_1_fn(RTOS::Task_t * task) {
 
 bool task_delayed_fn(RTOS::Task_t * task) {
     timer_init();   // start the timer
-    return true;
-}
-
-bool task_periodic_fn(RTOS::Task_t * task) {
+    
     i64 now_time = RTOS::Time::now();
     RTOS::Time::idle(now_time, 30);
     while(RTOS::Time::now() - now_time < 30) {}
     return true;
 }
 
+bool task_delayed_end_fn(RTOS::Task_t * task) {
+    return true;
+}
+
 int main() {
     Test::Schedule_t schedule[] = {
-        { 0,    "task_delayed",  },
-        { 500,  "task_periodic", },
-        { 1000, "task_periodic", },
-        { 1500, "task_periodic", },
+        { 0,    "task_delayed",     },
+        { 2000, "task_delayed_end", },
         { -1 },
     };
     Test::set_schedule(schedule);
@@ -71,13 +68,13 @@ int main() {
     task_delayed->period_ms = 0;
     task_delayed->delay_ms = 0;
     
-    RTOS::Task_t * task_periodic = RTOS::Task::init("task_periodic", task_periodic_fn);
-    task_periodic->period_ms = 500;
-    task_periodic->delay_ms = 500;
+    RTOS::Task_t * task_delayed_end = RTOS::Task::init("task_delayed_end", task_delayed_end_fn);
+    task_delayed_end->period_ms = 0;
+    task_delayed_end->delay_ms = 2000;
     
     RTOS::Task::dispatch(task_event_1);
     RTOS::Task::dispatch(task_delayed);
-    RTOS::Task::dispatch(task_periodic);
+    RTOS::Task::dispatch(task_delayed_end);
     
     RTOS::dispatch();
     return 0;
@@ -93,14 +90,14 @@ namespace UDF {
                 case Mark_Event: {
                     i64 this_time = RTOS::Time::now();
                     if(trace->mark.event.event == 0b1) {
-                        assert(this_time >= 500 && this_time <= 530);
+                        assert(this_time >= 0 && this_time <= 30);
                     }
                     return;
                 }
                 case Mark_Start: {
                     i64 this_time = RTOS::Time::now();
                     if(trace->mark.start.instance == 0) {
-                        assert(this_time < 1000 && this_time >= 530);
+                        assert(this_time >= 30);
                         return;
                     } else break;
                 }

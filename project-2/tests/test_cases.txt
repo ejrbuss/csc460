@@ -16,21 +16,9 @@ DONE 7. Dispatch an event before the OS is dispatched. Should remember it and ha
 DONE 8. A delayed task that terminates is ran once and then never again.
 DONE 9. A delayed task that runs immediately and then terminates is ran once and then never again.
 DONE 10. A delayed task that creates itself is ran twice, or multiple times.
-11. An interrupt goes off during a periodic task. What happens?
-
-12. An interrupt goes off during a delayed task. What happens?
-13. Sequence of events:
-     - periodic task runs
-     - interrupt goes off
-     - periodic task finishes
-     - event driven task runs
-     - event driven task finishes
-     - periodic task runs
-    This makes sure that the periodic task is allowed to finish and that the event-driven task runs 
-    because there is enough time for it to run.
-14. One periodic task. Many delayed tasks and event-driven tasks to try to overload the time between
-    periods. Assert that the scheduler still runs the periodic task on time.
-17. Sequence of events:
+DONE 11. An interrupt goes off during a periodic task. What happens?
+DONE 12. An interrupt goes off during a delayed task. What happens?
+DONE 13. Sequence of events:
      - periodic task runs
      - interrupt goes off
      - periodic task finishes
@@ -38,7 +26,10 @@ DONE 10. A delayed task that creates itself is ran twice, or multiple times.
      - periodic task runs
     This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
     when it knows it has enough time to.
-21. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
+14. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
+
+14. One periodic task. Many delayed tasks and event-driven tasks to try to overload the time between
+    periods. Assert that the scheduler still runs the periodic task on time.
 24. A periodic task can become an event-driven task correctly.
 25. An event-driven task can become a periodic task correctly.
 26. A periodic task can become a delayed task for one time and then terminate.
@@ -69,6 +60,15 @@ DONE 3. Task unit teseting
 
 --- DECIDEDLY NO TESTS ---
 
+NO 13. Sequence of events: (duplicated by 11)
+     - periodic task runs
+     - interrupt goes off
+     - periodic task finishes
+     - event driven task runs
+     - event driven task finishes
+     - periodic task runs
+    This makes sure that the periodic task is allowed to finish and that the event-driven task runs 
+    because there is enough time for it to run.
 NO 5. Two periodic tests that overlap but can both finish within one millisecond work fine.
 NO 8. An event going off makes the corresponding event-driven task go off, with nothing else going on. (duplicated by 7)
 NO 8. An ISR sets the correct event bit.
