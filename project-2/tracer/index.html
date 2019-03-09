@@ -38,6 +38,11 @@
                 fetch('/data')
                     .then(response => response.json())
                     .then(data_list => data_list.forEach(parse_data))
+                    .then(() => {
+                        const l = Object.keys(state.instance_to_name).length;
+                        make_trace(l);
+                        $('.spin-box').remove();
+                    })
                     ;
             };
 
@@ -74,9 +79,6 @@
 
             const stamp = () => {
                 const l = Object.keys(state.instance_to_name).length;
-                if (num_of_traces !== l) {
-                    make_trace(l);
-                }
                 const new_xs = [];
                 const new_ys = [];
                 for (let i = -1; i < l - 1; i++) {
@@ -91,11 +93,13 @@
                     new_ys.push(ys);
                     new_xs.push(xs);
                 }
+                /*
                 const range = [...Array(l).keys()];
                 Plotly.extendTraces(trace_id, {
                     y: new_ys,
                     x: new_xs,
                 }, range);
+                */
             };
 
             const parse_data = (data) => {
@@ -104,6 +108,8 @@
                     if (data.name === 'Def_Task') {
                         log[data.instance] = { x: [], y: [] };
                         state.instance_to_name[data.instance] = data.handle;
+                        state.current_value[data.instance] = 0;
+                        stamp();
                         return;
                     }
                     if (data.name === 'Def_Event') {
@@ -150,9 +156,9 @@
                         return;
                     }
                     if (data.name === 'Mark_Event') {
-                        state.current_time = data.time;
-                        state.event = data.event;
-                        stamp();
+                        // state.current_time = data.time;
+                        // state.event = data.event;
+                        // stamp();
                         return;
                     }
                     if (data.name === 'Mark_Idle') {
@@ -183,14 +189,25 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Live Trace</a>
         </nav>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-auto">
-                    <div id="memory"></div>
-                </div>
-                <div class="col-lg-auto">
-                    <div id="trace"></div>
+        <div class="card">
+            <div class="card-body">
+                <div id="trace"></div>
+                <div class="spin-box d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div id="memory"></div>
+                <div class="spin-box d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

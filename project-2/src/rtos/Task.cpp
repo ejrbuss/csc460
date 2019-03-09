@@ -202,13 +202,18 @@ namespace Task {
         taken_events |= task->events;
         #endif
         if (!result) {
-            Memory::Pool::dealloc(Registers::task_pool, task);                
+            Memory::Pool::dealloc(Registers::task_pool, task);       
+        } else if (save) {
+            return;         
         } else if (task->period_ms) {
             Registers::periodic_tasks = Task::insert_ordered(Registers::periodic_tasks, task);
         } else if (task->delay_ms) {
             Registers::delayed_tasks = Task::insert_ordered(Registers::delayed_tasks, task);
         } else if (task->events) {
             Registers::event_tasks_tail = Task::insert_tail(Registers::event_tasks_tail, task);
+            if (Registers::event_tasks == nullptr) {
+                Registers::event_tasks = Registers::event_tasks_tail;
+            }
         } else {
             Memory::Pool::dealloc(Registers::task_pool, task);
         }
