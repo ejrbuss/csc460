@@ -18,6 +18,8 @@ static int trace_no = 0;
 
 RTOS::Event_t e1;
 
+#define CURRENT_TEST
+#ifdef CURRENT_TEST
 ISR(TIMER3_COMPA_vect) {
     static int millis_passed = 0;
     millis_passed++;
@@ -25,6 +27,7 @@ ISR(TIMER3_COMPA_vect) {
         RTOS::Event::dispatch(e1);
     }
 }
+#endif
 
 void timer_init() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -43,13 +46,14 @@ bool task_event_1_fn(RTOS::Task_t * task) {
 }
 
 bool task_delayed_fn(RTOS::Task_t * task) {
-    // timer_init();   // start the timer
+    timer_init();   // start the timer
     return true;
 }
 
 bool task_periodic_fn(RTOS::Task_t * task) {
-    i64 start_time = RTOS::Time::now();
-    RTOS::Time::idle(start_time, start_time + 30);
+    i64 now_time = RTOS::Time::now();
+    RTOS::Time::idle(now_time, 30);
+    while(RTOS::Time::now() - now_time < 30) {}
     return true;
 }
 
@@ -113,8 +117,5 @@ namespace UDF {
     }
     
     bool error(Trace_t * trace) { return true; }
-    
-    // RTOS::debug_print("\nTest passed.\n");
-    // RTOS::halt();
     
 }}
