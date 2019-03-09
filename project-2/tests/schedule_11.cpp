@@ -43,13 +43,13 @@ bool task_event_1_fn(RTOS::Task_t * task) {
 }
 
 bool task_delayed_fn(RTOS::Task_t * task) {
-    // timer_init();   // start the timer
+    timer_init();   // start the timer
     return true;
 }
 
 bool task_periodic_fn(RTOS::Task_t * task) {
-    i64 start_time = RTOS::Time::now();
-    RTOS::Time::idle(start_time, start_time + 30);
+    i64 now_time = RTOS::Time::now();
+    while (RTOS::Time::now() - now_time < 30) {}
     return true;
 }
 
