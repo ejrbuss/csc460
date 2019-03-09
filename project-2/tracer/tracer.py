@@ -39,13 +39,15 @@ def data():
     else:
         return dumps([])
 
-def main(args=argv):
-    if len(argv) > 1 and argv[1] == 'noweb':
+def main(args):
+    global MAX_TRACES
+    MAX_TRACES = args.max
+    if (args.noweb):
         trace_listener()
     else:
         thread = Thread(target=trace_listener)
         thread.start()
-        run(host='localhost', port=PORT, debug=True)
+        run(host='localhost', port=args.port, debug=args.debug)
         thread.join()
 
 def trace_listener():

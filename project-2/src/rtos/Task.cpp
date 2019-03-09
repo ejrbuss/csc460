@@ -64,8 +64,7 @@ namespace Task {
         }
         if (
             (task->events && task->period_ms) ||
-            (task->events && task->delay_ms) ||
-            (!task->events && !task->period_ms && !task->delay_ms)
+            (task->events && task->delay_ms)
         ) {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 Registers::trace.tag = Error_Invalid_Task;
@@ -170,7 +169,6 @@ namespace Task {
 
         if (save) {
             if (!task->events || !result) {
-
                 #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
                 taken_events &= ~task->events;
                 #endif
@@ -285,6 +283,10 @@ namespace Task {
             }
         }
         #endif
+
+        if (task->events) {
+            return Time::now();
+        }
 
         if (task->impl.first) {
             return task->delay_ms;

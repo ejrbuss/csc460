@@ -24,7 +24,7 @@ namespace RTOS {
 
         Time::init();
 
-        for (;;) {
+        MAIN_LOOP: for (;;) {
  
             i64 this_time = Time::now();
             i64 idle_time = 0xFFFF;
@@ -55,12 +55,11 @@ namespace RTOS {
                         Registers::delayed_tasks = Task::cdr(task);
                         Task::run(task);
                     }   
-                    continue;
+                    goto MAIN_LOOP;
                 } else {
                     idle_time = min(idle_time, time_remaining);
                 }
             }
-
             task = Registers::event_tasks;
             if (Registers::events) {
                 while (task != nullptr) {
@@ -68,7 +67,7 @@ namespace RTOS {
                         if (Task::fits(task, idle_time)) {
                             Task::run(task);
                         }
-                        continue;
+                        goto MAIN_LOOP;
                     }
                     task = Task::cdr(task);
                 }

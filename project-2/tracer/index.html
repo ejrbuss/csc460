@@ -13,18 +13,23 @@
             let interval;
             const trace_id = 'trace';
             const memory_id = 'memory';
-            const log = {};
-            const state = {
+            let log = {};
+            let state = {
                 event: 0,
+                heap: 0,
                 memory_values: [],
                 memory_handles: [],
                 event_to_name: {},
                 instance_to_name: { '-1': 'OS' },
                 current_value: {},
                 current_time: 0,
-            };
-            let num_of_traces = 0;
 
+                current_count: {},
+                current_last_time: {},
+                current_total_time: {},
+                current_min_time: {},
+                current_max_time: {},
+            };
             let request_num = 0;
             let MAX_REQUESTS = 200;
 
@@ -37,13 +42,35 @@
                 }
                 fetch('/data')
                     .then(response => response.json())
-                    .then(data_list => data_list.forEach(parse_data))
-                    .then(() => {
-                        const l = Object.keys(state.instance_to_name).length;
-                        make_trace(l);
-                        $('.spin-box').remove();
-                    })
-                    ;
+                    .then(data_list => {
+                        data_list.forEach(parse_data);
+                        if (data_list.length > 0) {
+                            request_num = 0;
+                            const l = Object.keys(state.instance_to_name).length;
+                            make_trace(l);
+                            make_table();
+                            $('.spin-box').remove();
+                        }
+                    });
+            };
+
+            const make_table = () => {
+                const html = [];
+                const l = Object.keys(state.instance_to_name).length;
+                for (let i = -1; i < l - 1; i++) {
+                    html.push(`
+                        <tr>
+                            <th scope="row">${state.instance_to_name[i]}</th>
+                            <td>${(state.current_count[i])}</td>
+                            <td>${(state.current_total_time[i] / state.current_time * 100).toFixed(1)}</td>
+                            <td>${(state.current_total_time[i])}</td>
+                            <td>${(state.current_total_time[i] / state.current_count[-1]).toFixed(1)}</td>
+                            <td>${(state.current_min_time[i])}</td>
+                            <td>${(state.current_max_time[i])}</td>
+                        </tr>
+                    `);
+                }
+                $('#metrics').html(html.join(''));
             };
 
             const make_memory = () => {
@@ -52,7 +79,10 @@
                     labels : state.memory_handles,
                     type   : 'pie',
                 }];
-                Plotly.newPlot(memory_id, data);
+                const layout = {
+                    title: `Heap Usage (${state.heap} Bytes)`,
+                };
+                Plotly.newPlot(memory_id, data, layout);
             };
 
             const make_trace = (l) => {
@@ -60,11 +90,14 @@
                 const layout = {
                     title: 'Task Uptime',
                     xaxis: {
+                        title          : 'Time (ms)',
                         rangeslider: {}
                     }, yaxis: {
                         fixedrange     : true,
+                        showgrid       : false,
                         showticklabels : false,
-                    }
+                    },
+                    responsive: true,
                 };
                 for (let i = l - 2; i >= -1; i--) {
                     traces.push({
@@ -74,37 +107,49 @@
                         name : state.instance_to_name[i],
                     });
                 }
-                Plotly.react(trace_id, traces, layout);
+                Plotly.newPlot(trace_id, traces, layout);
             };
 
             const stamp = () => {
                 const l = Object.keys(state.instance_to_name).length;
-                const new_xs = [];
-                const new_ys = [];
                 for (let i = -1; i < l - 1; i++) {
-                    const ys = [
-                        state.current_value[i] + (i + 1) * 1.5 + .5,
-                    ];
-                    const xs = [
-                        state.current_time,
-                    ];
-                    log[i].y.push(...ys);
-                    log[i].x.push(...xs);
-                    new_ys.push(ys);
-                    new_xs.push(xs);
+                    log[i].y.push(state.current_value[i] + (i + 1) * 1.5 + .5);
+                    log[i].x.push(state.current_time);
                 }
-                /*
-                const range = [...Array(l).keys()];
-                Plotly.extendTraces(trace_id, {
-                    y: new_ys,
-                    x: new_xs,
-                }, range);
-                */
+            };
+
+            const update_time_metrics = (time, instance) => {
+                const count = (state.current_count[instance] === undefined
+                    ? 0
+                    : state.current_count[instance]
+                );
+                const last_time = state.current_last_time[instance];
+                const time_passed = time - last_time;
+                const min_time = (state.current_min_time[instance] === undefined
+                    ? Infinity
+                    : state.current_min_time[instance]
+                );
+                const max_time    = (state.current_max_time[instance] === undefined
+                    ? -Infinity
+                    : state.current_max_time[instance]
+                );
+                const total_time  = (state.current_total_time[instance] === undefined
+                    ? 0
+                    : state.current_total_time[instance]
+                );
+                state.current_count[instance] = count + 1;
+                state.current_total_time[instance] = total_time + time_passed;
+                if (time_passed < min_time) {
+                    state.current_min_time[instance] = time_passed;
+                }
+                if (time_passed > max_time) {
+                    state.current_max_time[instance] = time_passed;
+                }
             };
 
             const parse_data = (data) => {
                 if (data.name) {
-                    console.log('received :', data);
+                    console.log('received:', data);
                     if (data.name === 'Def_Task') {
                         log[data.instance] = { x: [], y: [] };
                         state.instance_to_name[data.instance] = data.handle;
@@ -124,11 +169,32 @@
                         return;
                     }
                     if (data.name === 'Mark_Init') {
+                        // Re init
+                        log = {};
+                        state = {
+                            event: 0,
+                            heap: 0,
+                            memory_values: [],
+                            memory_handles: [],
+                            event_to_name: {},
+                            instance_to_name: { '-1': 'OS' },
+                            current_value: {},
+                            current_time: 0,
+
+                            current_count: {},
+                            current_last_time: {},
+                            current_total_time: {},
+                            current_min_time: {},
+                            current_max_time: {},
+                        };
+                                                
                         log[-1] = { x: [], y: [] };
                         state.current_time = data.time;
+                        state.current_last_time[-1] = data.time;
                         stamp();
                         state.current_value[-1] = 1;
                         stamp();
+                        state.heap = data.heap;
                         state.memory_values.push(data.heap);
                         state.memory_handles.push('Available');
                         make_memory();
@@ -143,6 +209,7 @@
                     }
                     if (data.name === 'Mark_Start') {
                         state.current_time = data.time;
+                        state.current_last_time[data.instance] = data.time;
                         stamp();
                         state.current_value[data.instance] = 1;
                         stamp();
@@ -150,6 +217,7 @@
                     }
                     if (data.name === 'Mark_Stop') {
                         state.current_time = data.time;
+                        update_time_metrics(data.time, data.instance);
                         stamp();
                         state.current_value[data.instance] = 0;
                         stamp();
@@ -163,6 +231,7 @@
                     }
                     if (data.name === 'Mark_Idle') {
                         state.current_time = data.time;
+                        update_time_metrics(data.time, -1);
                         stamp();
                         state.current_value[-1] = 0;
                         stamp();
@@ -170,6 +239,7 @@
                     }
                     if (data.name === 'Mark_Wake') {
                         state.current_time = data.time;
+                        state.current_last_time[-1] = data.time;
                         stamp();
                         state.current_value[-1] = 1;
                         stamp();
@@ -179,33 +249,49 @@
             };
 
             $(document).ready(() => {
-                interval = setInterval(get_data, 5);   
+                interval = setInterval(get_data, 100);   
             });
 
             
         </script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Live Trace</a>
-        </nav>
-        <div class="card">
-            <div class="card-body">
-                <div id="trace"></div>
-                <div class="spin-box d-flex justify-content-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+        <div class="bg-light p-4">
+            <div class="row m-4">
+                <div class="col shadow bg-white rounded">
+                    <div id="trace"></div>
+                    <div class="spin-box p-5 d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div id="memory"></div>
-                <div class="spin-box d-flex justify-content-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+            <div class="row m-4 mt-0">
+                <div class="col-sm mr-4 shadow bg-white rounded">
+                    <div id="memory"></div>
+                    <div class="spin-box p-5 d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
+                </div>
+                <div class="col-sm ml-4 shadow bg-white rounded">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Task</th>
+                                <th scope="col">Times Run (#)</th>
+                                <th scope="col">CPU Util. (%)</th>
+                                <th scope="col">Total Time (ms)</th>
+                                <th scope="col">Average Time (ms)</th>
+                                <th scope="col">Minimum Time (ms)</th>
+                                <th scope="col">Maximum Time (ms)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metrics">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
