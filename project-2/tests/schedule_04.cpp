@@ -2,7 +2,7 @@
  * schedule_04
  * 
  * Test: 
- *  Two periodic tasks that overlap cause an error.
+ *  Two periodic tasks that overlap cause an error and the second task is ran ASAP.
  */
 
 #include <RTOS.h>
@@ -38,13 +38,17 @@ namespace UDF {
     void trace(Trace_t * trace) { 
         Trace::serial_trace(trace);
         static int trace_no = 0;
-        if (trace->tag != Debug_Message) {
+        if (trace->tag == Mark_Start) {
             trace_no++;
+            i64 this_time = RTOS::Time::now();
             switch (trace_no) {
-                // case 1 - 3 RTOS init
-                // case 4 - 5 Def Tasks
-                case 6:
+                case 1:
                     assert(trace->tag == Mark_Start && trace->mark.start.instance == 0);
+                    assert(this_time == 0);
+                    break;
+                case 2:
+                    assert(trace->tag == Mark_Start && trace->mark.start.instance == 1);
+                    assert(this_time >= 0);
                     break;
                 default: 
                     break;

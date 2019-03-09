@@ -1,20 +1,16 @@
 
 /**
- * schedule_13
+ * schedule_14
  * 
  * Test:
  *  Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
- *   Sequence of events:
- *   - periodic task runs
- *   - interrupt goes off
- *   - periodic task finishes
- *   - event driven task goes off because the OS doesn't know that it doesn't have enough time for it
- *   - interrupt goes off again
- *   - periodic task misses its next deadline
- *   - event driven task does not run because there is not enough time for it to finish
- *   - periodic task runs
- *  This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
- *  when it knows it has enough time to.
+ *  Sequence of events:
+ *  - periodic task runs
+ *  - interrupt goes off
+ *  - event driven task runs
+ *  - interrupt goes off again
+ *  - event driven task runs again
+ *  - repeat
  */
 
 #include <RTOS.h>

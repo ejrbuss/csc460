@@ -26,20 +26,19 @@ DONE 13. Sequence of events:
      - periodic task runs
     This makes sure that the periodic task is allowed to finish and that the scheduler only runs tasks
     when it knows it has enough time to.
-14. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
+DONE 14. Within one large idle time, an interrupt goes off twice and the event-driven task is ran twice.
+DONE 15. A periodic task can become a delayed task for one time and then terminate.
+DONE 16. A delayed task can become a periodic task.
 
 14. One periodic task. Many delayed tasks and event-driven tasks to try to overload the time between
     periods. Assert that the scheduler still runs the periodic task on time.
 24. A periodic task can become an event-driven task correctly.
 25. An event-driven task can become a periodic task correctly.
-26. A periodic task can become a delayed task for one time and then terminate.
 27. A delayed task can become an event-driven task.
 28. An event-driven task can become a delayed task.
 29. If I missed any other combinations of the above tests...
 31. A periodic task that wants to become an event-driven task cannot if the event it wants to listen
     to is already taken. Error should be issued when you try to dispatch the task.
-34. A delayed task that is scheduled to go off during a periodic task does not preempt the periodic task
-    but does correctly run later when it has time.
 35. A task's state stays the same when it is switched between task types.
 36. If the user creates enough tasks that there is no idle time and tasks miss their deadlines, errors
     will go off. Ex: periodic task A at 500, periodic task B at 501, but task A takes too long.
@@ -75,3 +74,5 @@ NO 8. An ISR sets the correct event bit.
 NO 10. An interrupt goes off during a context switch. What happens?
 NO 19. An interrupt goes off during tracing.
 NO 33. Multiple periodic tasks with offsets run when they are supposed to.
+NO 34. A delayed task that is scheduled to go off during a periodic task does not preempt the periodic task
+    but does correctly run later when it has time. (a periodic and interrupting a periodic task covered by 4)
