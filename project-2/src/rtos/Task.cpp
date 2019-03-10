@@ -5,7 +5,10 @@ namespace RTOS {
 namespace Task {
 
     static u8 instance_count = 0;
-    static Event_t taken_events = 0;
+
+    #if defined(RTOS_CHECK_ALL) || defined(RTOS_CHECK_TASK)
+        static Event_t taken_events = 0;
+    #endif
 
     Task_t * init(const char * handle, task_fn_t fn) {
         Task_t * task = (Task_t *) Memory::Pool::alloc(Registers::task_pool);
