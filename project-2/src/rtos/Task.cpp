@@ -201,7 +201,7 @@ namespace Task {
         #endif
         if (!result) {
             Memory::Pool::dealloc(Registers::task_pool, task);       
-        } else if (save) {
+        } else if (task->events && save) {
             return;         
         } else if (task->period_ms) {
             Registers::periodic_tasks = Task::insert_ordered(Registers::periodic_tasks, task);

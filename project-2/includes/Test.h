@@ -62,6 +62,7 @@ namespace Test {
                 task_count++;
                 if (schedule[task_count].time == -1) {
                     RTOS::debug_print("\nSchedule passed.");
+                    RTOS::debug_led(true);
                     RTOS::halt();
                 }
                 break;

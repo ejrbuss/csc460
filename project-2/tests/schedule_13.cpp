@@ -66,7 +66,7 @@ int main() {
     Test::Schedule_t schedule[] = {
         { 0,    "task_delayed",  },
         { 500,  "task_periodic", },
-        { 1500, "task_periodic", },
+        { 1501, "task_periodic", }, // { 1500, "task_periodic", }, Too slow because of printing
         { 2000, "task_periodic", },
         { -1 },
     };
@@ -98,33 +98,29 @@ namespace UDF {
     
     void trace(Trace_t * trace) { 
         Trace::serial_trace(trace);
-        if (trace->tag != Debug_Message) {
-            switch (trace->tag) {
-                case Mark_Event: {
-                    i64 this_time = RTOS::Time::now();
-                    if(trace->mark.event.event == 0b1) {
-                        assert(this_time >= 500 && this_time <= 540);
-                    }
-                    return;
+        switch (trace->tag) {
+            case Mark_Event: {
+                if(trace->mark.event.event == 0b1) {
+                    assert(trace->mark.time >= 500 && trace->mark.time <= 540);
                 }
-                case Mark_Start: {
-                    static int trace_no = 0;
-                    trace_no++;
-                    i64 this_time = RTOS::Time::now();
-                    switch (trace_no) {
-                        case 3:
-                            assert(trace->mark.start.instance == 0 && this_time >= 540 && this_time < 1000);
-                            return;
-                        case 4:
-                            assert(trace->mark.start.instance == 2 && this_time >= 1005);
-                            return;
-                        default:
-                            break;
-                    }
-                }
-                default: 
-                    break;
+                return;
             }
+            case Mark_Start: {
+                static int trace_no = 0;
+                trace_no++;
+                switch (trace_no) {
+                    case 3:
+                        assert(trace->mark.start.instance == 0 && trace->mark.time >= 540 && trace->mark.time < 1000);
+                        return;
+                    case 4:
+                        assert(trace->mark.start.instance == 2 && trace->mark.time >= 1005);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            default: 
+                break;
         }
         Test::schedule_trace(trace);
     }
