@@ -116,7 +116,7 @@ namespace RTOS {
             bool first;
             u8 instance; // Used to identify a task during a trace
             i64 last;    // The last time this task was run
-            i16 maximum; // The average runtime of this task
+            i16 maximum; // The maximum runtime of this task so far
         } impl;
     };
 
