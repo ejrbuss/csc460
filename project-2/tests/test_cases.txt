@@ -30,11 +30,10 @@ DONE 14. Within one large idle time, an interrupt goes off twice and the event-d
 DONE 15. A periodic task can become a delayed task for one time and then terminate.
 DONE 16. A delayed task can become a periodic task.
 DONE 17. A periodic task can become an event-driven task.
-18. An event-driven task can become a delayed task.
+DONE 18. An event-driven task can become a delayed task.
 DONE 19. A delayed task can become an event-driven task.
-20. An event-driven task can become a periodic task.
+DONE 20. An event-drive n task can become a periodic task.
 DONE 21. A task's state stays the same when it is switched between task types.
-
 
 
 --- UNIT TESTS ---
