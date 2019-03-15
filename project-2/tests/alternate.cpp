@@ -26,8 +26,8 @@ int main() {
     task_led_on->period_ms = 500;
     task_led_off->period_ms = 500;
     task_led_off->delay_ms = 250;
-    RTOS::Trace::configure_pin(task_led_on, 2);
-    RTOS::Trace::configure_pin(task_led_off, 3);
+    // RTOS::Trace::configure_pin(task_led_on, 2);
+    // RTOS::Trace::configure_pin(task_led_off, 3);
     RTOS::Task::dispatch(task_led_on);
     RTOS::Task::dispatch(task_led_off);
     RTOS::dispatch();
@@ -38,7 +38,7 @@ namespace RTOS {
 namespace UDF {
     void trace(Trace_t * trace) { 
         Trace::serial_trace(trace);
-        Trace::pin_trace(trace);
+        // Trace::pin_trace(trace);
     }
     bool error(Trace_t * trace) { return true; }
 }}

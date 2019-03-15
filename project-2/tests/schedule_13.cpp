@@ -45,7 +45,6 @@ void timer_init() {
 
 bool task_event_1_fn(RTOS::Task_t * task) {
     i64 now_time = RTOS::Time::now();
-    RTOS::Time::idle(now_time, 500);
     while(RTOS::Time::now() - now_time < 500) {}
     return true;
 }
@@ -57,7 +56,6 @@ bool task_delayed_fn(RTOS::Task_t * task) {
 
 bool task_periodic_fn(RTOS::Task_t * task) {
     i64 now_time = RTOS::Time::now();
-    RTOS::Time::idle(now_time, 40);
     while(RTOS::Time::now() - now_time < 40) {}
     return true;
 }
@@ -66,7 +64,7 @@ int main() {
     Test::Schedule_t schedule[] = {
         { 0,    "task_delayed",  },
         { 500,  "task_periodic", },
-        { 1501, "task_periodic", }, // { 1500, "task_periodic", }, Too slow because of printing
+        { 1500, "task_periodic", }, // { 1500, "task_periodic", }, Too slow because of printing
         { 2000, "task_periodic", },
         { -1 },
     };
