@@ -49,10 +49,10 @@ LiquidCrystal init_lcd();
 #define STICK_U_OFFSET_Y 506
 #define STICK_U_DEADZONE (50 / STICK_SCALE)
 
-#define STICK_U_MAX_X    ((STICK_U_OFFSET_X / STICK_SCALE) - (2 * STICK_U_DEADZONE))
+#define STICK_U_MAX_X    (Q78(STICK_U_OFFSET_X / STICK_SCALE) - (2 * STICK_U_DEADZONE))
 #define STICK_U_MIN_X    (-STICK_U_MAX_X)
 
-#define STICK_U_MAX_Y    ((STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
+#define STICK_U_MAX_Y    (Q78(STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
 #define STICK_U_MIN_Y    (-STICK_U_MAX_Y)
 
 int sample_stick_u_x();

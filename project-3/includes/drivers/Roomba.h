@@ -1,5 +1,5 @@
 /*
- * Adapted from Roomba2 code. (make a good reference for this)
+ * Adapted from Roomba2 and Neil's code. (make a good reference for this)
  */
 
 #pragma once
@@ -48,6 +48,12 @@ typedef enum _br {
     ROOMBA_115200BPS = 11,
 } ROOMBA_BITRATE;
 
+// Arguments to the change_state function
+typedef enum _rstate {
+	PASSIVE_MODE,
+	SAFE_MODE,
+} ROOMBA_STATE;
+
 namespace Roomba {
     
     void configure(int serial_connector, int brc_pin);
@@ -55,7 +61,9 @@ namespace Roomba {
     void drive(int velocity, int radius);
     void dock();
     void get_data();
-    void send_command(i8 m_x);
+    void send_command(i8 m_x, i8 m_y);
+    int get_state();
+    void set_state(ROOMBA_STATE newState);
     bool check_power(unsigned int *power);
     bool check_power_capacity(unsigned int *power);
     void power_off();

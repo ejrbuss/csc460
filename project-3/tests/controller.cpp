@@ -21,14 +21,14 @@ bool task_sample_fn(RTOS::Task_t * task) {
     } else {
         current_message->u_x   = sample_stick_u_x();
         current_message->u_y   = sample_stick_u_y();
-        if (Serial.available()) {
-            current_message->m_x = Serial.read();
-        } else {
-            current_message->m_x = 0;
-        }
-        current_message->m_y   = 0;
-        // current_message.m_x   = sample_stick_m_x();
-        // current_message.m_y   = sample_stick_m_y();
+        // if (Serial.available()) {
+        //     current_message->m_x = Serial.read();
+        // } else {
+        //     current_message->m_x = 0;
+        // }
+        // current_message->m_y = 0;
+        current_message->m_x   = sample_stick_m_x();
+        current_message->m_y   = sample_stick_m_y();
         current_message->flags = stick_u_down() ? MESSAGE_LASER : 0;
         
         // send the message
@@ -57,7 +57,7 @@ int main() {
     
     RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
     
-    task_sample->period_ms = 32;
+    task_sample->period_ms = 80; //32;
     task_sample->state = (void *) &current_message;
     
     Serial.print("hello world\n");
@@ -65,7 +65,7 @@ int main() {
     
     RTOS::Task::dispatch(task_sample);
     RTOS::dispatch();
-    
+
     return 0;
 }
 

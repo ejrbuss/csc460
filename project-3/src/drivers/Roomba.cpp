@@ -1,5 +1,5 @@
 /*
- * Adapted from Roomba2 code. (make a good reference for this)
+ * Adapted from Roomba2 and Neil's code. (make a good reference for this)
  */
 
 #include "Roomba.h"
@@ -9,6 +9,7 @@ namespace Roomba {
     static int serial_num = 0;
     static int brc_pin = 0;
     bool initialized = true;
+    int state = SAFE_MODE;
     
     //
     // Private Function Prototypes
@@ -114,7 +115,7 @@ namespace Roomba {
     }
 
     void drive(int velocity, int radius) {
-        Serial1.println("Drive");
+        // Serial1.println("Drive");
         write_serial(DRIVE);
         write_serial(HIGH_BYTE(velocity));
         write_serial(LOW_BYTE(velocity));
@@ -131,13 +132,43 @@ namespace Roomba {
         while(read_serial(&val));
     }
     
-    void send_command(i8 m_x) {
+    void send_command(i8 x, i8 y) {
         if(!initialized) {
             init();
             initialized = true;
         }
         
-        i8 command = m_x;
+        char command;
+        
+        if (state == SAFE_MODE) {
+            if (x > -10 && x < 10 && y > -10 && y < 10) {
+                command = 's';
+            } else if (x > -10 && x < 10 && y < 0) {
+                command = 'f';
+            } else if (x > -10 && x < 10 && y > 0) {
+                command = 'b';
+            } else if (x > 0) {
+                command = 'r';
+            } else {
+                command = 'l';
+            }
+        } else {
+            // Do not allow forward or backward motion
+            if (x > -10 && x < 10) {
+                command = 's';
+            } else if (x > 0) {
+                command = 'r';
+            } else {
+                command = 'l';
+            }
+        }
+        
+        // Serial1.print(x);
+        // Serial1.print(", ");
+        // Serial1.print(y);
+        // Serial1.print(", ");
+        // Serial1.println(command);
+        
         switch(command) {
             case 'f': 
                 drive(150, 32768);
@@ -164,6 +195,15 @@ namespace Roomba {
             default:
                 break;
         }
+    }
+    
+    int get_state() {
+        return state;
+    }
+    
+    void set_state(ROOMBA_STATE newState) {
+        state = newState;
+        Serial1.println(state);
     }
 
     void start_serial(long baud) {
