@@ -4,65 +4,67 @@
 #include "Message.h"
 #include "Peripherals.h"
 
-#define BAUD 9600
+#define SERIAL_BAUD 9600
 
 int g_done = 0;
 
 bool task_sample_fn(RTOS::Task_t * task) {
-    Message_t * current_message = (Message_t *) task->state; 
+    while (Serial1.available()) {
+        Serial.write(Serial1.read());
+    }
+    
+    Message_t * current_message = (Message_t *) task->state;
+    
     if (photocell_hit()) {
         g_done = 1;
         current_message->flags = MESSAGE_DONE;
     } else {
         current_message->u_x   = sample_stick_u_x();
         current_message->u_y   = sample_stick_u_y();
-        // current_message->m_x   = sample_stick_m_x();
-        // current_message->m_y   = sample_stick_m_y();
+        if (Serial.available()) {
+            current_message->m_x = Serial.read();
+        } else {
+            current_message->m_x = 0;
+        }
+        current_message->m_y   = 0;
+        // current_message.m_x   = sample_stick_m_x();
+        // current_message.m_y   = sample_stick_m_y();
         current_message->flags = stick_u_down() ? MESSAGE_LASER : 0;
+        
+        // send the message
+        u8 * buffer = (u8 *) current_message;
+        u16 i;
+        for (i = 0; i < sizeof(Message_t); i++) {
+            Serial1.write(buffer[i]);
+        }
     }
+    
     task->state = (void *) current_message;
-    return true;
-}
-
-bool task_send_message_fn(RTOS::Task_t * task) {
-    Message::send((Message_t *) task->state);
     return true;
 }
 
 int main() {
     RTOS::init();
     
-    Serial1.begin(BAUD);
-    Serial.begin(BAUD);
+    Serial1.begin(SERIAL_BAUD);
+    Serial.begin(SERIAL_BAUD);
+    delay(100);
     
-    Message_t * current_message = NULL;
+    Message_t current_message;
     
     // We only set this once
-    current_message->header = MESSAGE_HEADER;
+    current_message.header = MESSAGE_HEADER;
     
     RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
-    RTOS::Task_t * task_send_message = RTOS::Task::init("task_send_message", task_send_message_fn);
     
-    task_sample->period_ms = 16;
-    task_sample->state = (void *) current_message;
+    task_sample->period_ms = 32;
+    task_sample->state = (void *) &current_message;
     
-    task_send_message->period_ms = 16;
-    task_send_message->delay_ms = 8;
-    task_send_message->state = (void *) current_message;
+    Serial.print("hello world\n");
+    delay(1000);
     
     RTOS::Task::dispatch(task_sample);
-    RTOS::Task::dispatch(task_send_message);
     RTOS::dispatch();
-    
-    // while (1) {
-    //     if(Serial.available()) {
-    //         Serial1.write(Serial.read());
-    //     }
-    //     if(Serial1.available()) {
-    //         Serial.write(Serial1.read());
-    //     }
-    //     delay(100);
-    // }
     
     return 0;
 }

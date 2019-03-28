@@ -11,20 +11,11 @@ enum state {
 
 namespace Message {
 
-    void send(Message_t * current_message) {
-        // Write each byte of current message one at a time
-        u8 * buffer = (u8 *) &current_message;
-        u16 i;
-        for (i = 0; i < sizeof(Message_t); i++) {
-            Serial1.write(buffer[i]);
-        }
-    }
-
     Message_t * receive(Message_t * current_message) {
         static int i = 0;
         static int state = header1;
         Message_t buffer_message;
-
+        
         if (current_message == NULL) {
             u8 * buffer = (u8 *) &buffer_message;
             while (Serial1.available()) {
@@ -56,7 +47,24 @@ namespace Message {
                 }
             }
         }
+        
         return current_message;
+    }
+    
+    void print(Print & p, const Message_t * m) {
+        p.print("{ u_x: ");
+        p.print(m->u_x);
+        p.print(" u_y: ");
+        p.print(m->u_x);
+        p.print(" m_x: ");
+        p.print(m->m_x);
+        p.print(" m_y: ");
+        p.print(m->m_y);
+        p.print(" laser: ");
+        p.print(!!(m->flags & MESSAGE_LASER));
+        p.print(" done: ");
+        p.print(!!(m->flags & MESSAGE_DONE));
+        p.print(" }\n");
     }
 
 }

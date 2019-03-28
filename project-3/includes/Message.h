@@ -25,8 +25,9 @@ namespace Message {
 
     Message_t * init();
 
-    void send(Message_t * current_message);
     Message_t * receive(Message_t * current_message);
+    
+    void print(Print & p, const Message_t * m);
 
     const char * to_string(Message_t * message);
 

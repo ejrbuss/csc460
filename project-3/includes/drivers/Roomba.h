@@ -55,7 +55,7 @@ namespace Roomba {
     void drive(int velocity, int radius);
     void dock();
     void get_data();
-    void send_command(i8 m_x, i8 m_y);
+    void send_command(i8 m_x);
     bool check_power(unsigned int *power);
     bool check_power_capacity(unsigned int *power);
     void power_off();

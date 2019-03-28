@@ -99,6 +99,8 @@ namespace Roomba {
         //Enter safe mode
         write_serial(SAFE);
 
+        Serial1.println("Done");
+        
         /*
         unsigned int power_cap = 0;
         check_power(&power);
@@ -129,13 +131,13 @@ namespace Roomba {
         while(read_serial(&val));
     }
     
-    void send_command(i8 m_x, i8 m_y) {
+    void send_command(i8 m_x) {
         if(!initialized) {
             init();
             initialized = true;
         }
         
-        int command = (m_x << 8) | m_y;
+        i8 command = m_x;
         switch(command) {
             case 'f': 
                 drive(150, 32768);
