@@ -57,9 +57,8 @@ int main() {
     RTOS::init();
     init_photocell();
     init_laser();
-    timer_init();
     
-    set_laser(ON);
+    set_laser(ON);  // for testing
     
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);

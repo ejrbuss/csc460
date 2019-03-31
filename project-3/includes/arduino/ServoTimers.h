@@ -33,10 +33,10 @@
 // Say which 16 bit timers can be used and in what order
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #define _useTimer5
-// Take back timers 1 and 3 for ourselves
+// Take back timers 1, 3, and 4 for ourselves
 // #define _useTimer1 
 // #define _useTimer3
-#define _useTimer4
+// #define _useTimer4
 typedef enum { _timer5, _timer1, _timer3, _timer4, _Nbr_16timers } timer16_Sequence_t;
 
 #elif defined(__AVR_ATmega32U4__)
