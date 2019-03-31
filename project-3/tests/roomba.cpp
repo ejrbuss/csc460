@@ -27,6 +27,7 @@ bool task_control_fn(RTOS::Task_t * task) {
     if (photocell_hit()) {
         Serial1.println("Turning off.");
         // maybe create a shut down task...
+        set_laser(OFF);
         return false;
     }
     
@@ -57,6 +58,8 @@ int main() {
     init_photocell();
     init_laser();
     timer_init();
+    
+    set_laser(ON);
     
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);

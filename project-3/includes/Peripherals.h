@@ -7,6 +7,13 @@
 #ifndef PERIPHERALS_H
 #define PERIPHERALS_H
 
+#define TRUE  1
+#define FALSE 0
+#define YES   TRUE
+#define NO    FALSE
+#define ON    TRUE
+#define OFF   FALSE
+
 //
 // LASER
 //
