@@ -163,11 +163,11 @@ namespace Roomba {
             }
         }
         
-        // Serial1.print(x);
-        // Serial1.print(", ");
-        // Serial1.print(y);
-        // Serial1.print(", ");
-        // Serial1.println(command);
+        Serial1.print(x);
+        Serial1.print(", ");
+        Serial1.print(y);
+        Serial1.print(", ");
+        Serial1.println(command);
         
         switch(command) {
             case 'f': 
@@ -201,9 +201,9 @@ namespace Roomba {
         return state;
     }
     
-    void set_state(ROOMBA_STATE newState) {
-        state = newState;
-        Serial1.println(state);
+    void set_state(ROOMBA_STATE new_state) {
+        if (state != new_state) Serial1.println(state);
+        state = new_state;
     }
 
     void start_serial(long baud) {

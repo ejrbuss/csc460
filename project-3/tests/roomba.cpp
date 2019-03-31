@@ -6,24 +6,80 @@
 #define SERIAL_BAUD 9600
 #define ROOMBA_UART 2
 #define BAUD_RATE_CHANGE_PIN 30
-#define TIMER_COUNT 250
 #define THIRTY_SEC_IN_MS 30000
+#define TIMER_COUNT 31250
 
-volatile int millis_passed = 0;
 volatile ROOMBA_STATE rstate = SAFE_MODE;
 int g_done = 0;
+bool hit = false;
+volatile bool dead = false;
+
 
 ISR(TIMER3_COMPA_vect) {
-    millis_passed++;
-    if (millis_passed == THIRTY_SEC_IN_MS) {
-        millis_passed = 0;
-        // Toggle the Roomba state
-        if (rstate == SAFE_MODE) {
-            rstate = PASSIVE_MODE;
+    dead = true;
+}
+
+void reset_timer() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3A = 0x00;                 // Clear control register A
+        TCCR3B = 0x00;                 // Clear control register B
+        TCNT3  = 0x00;                 // Clear the counter
+        OCR3A  = TIMER_COUNT;          // The value we are waiting for
+        TCCR3B |= BV(CS32) | BV(CS30); // Scale by 1024
+    }    
+}
+
+void stop_timer() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3B &= 0b11111000;   // Select no clock source
+    }    
+}
+
+void timer_init() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3A = 0x00;                 // Clear control register A
+        TCCR3B = 0x00;                 // Clear control register B
+        TCNT3  = 0x00;                 // Clear the counter
+        OCR3A  = TIMER_COUNT;          // The value we are waiting for
+        TCCR3B |= BV(WGM32);           // Use CTC mode
+        // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
+        TIMSK3 |= BV(OCIE3A);          // Enable timer compare interrupt
+    }
+}
+
+bool task_photocell_fn(RTOS::Task_t * task) {
+    hit = false;
+    dead = false;
+    
+    for(;;) {
+        set_laser(1);
+        if (dead) {
+            Serial1.println("We're dead :(");
+            break;
+        }
+        if (photocell_hit()) {
+            if (!hit) {
+                hit = true;
+                Serial1.println("started timer");
+                reset_timer();
+            }
         } else {
-            rstate = SAFE_MODE;
+            hit = false;
+            Serial1.println("stopped timer");
+            stop_timer();
         }
     }
+    
+    return true;
+}
+
+bool task_mode_switch_fn(RTOS::Task_t * task) {
+    if (rstate == SAFE_MODE) {
+        rstate = PASSIVE_MODE;
+    } else {
+        rstate = SAFE_MODE;
+    }
+    return true;
 }
 
 bool task_control_fn(RTOS::Task_t * task) {
@@ -53,20 +109,11 @@ bool task_control_fn(RTOS::Task_t * task) {
     return true;
 }
 
-void timer_init() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR3A = 0x00;                 // Clear control register A
-        TCCR3B = 0x00;                 // Clear control register B
-        TCNT3  = 0x00;                 // Clear the counter
-        OCR3A  = TIMER_COUNT;          // The value we are waiting for
-        TCCR3B |= BV(WGM32);           // Use CTC mode
-        TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
-        TIMSK3 |= BV(OCIE3A);          // Enable timer compare interrupt
-    }
-}
-
 int main() {
     RTOS::init();
+    init_photocell();
+    init_laser();
+    timer_init();
 
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);
@@ -85,14 +132,20 @@ int main() {
     }
     
     RTOS::Task_t * task_control = RTOS::Task::init("task_control", task_control_fn);
+    RTOS::Task_t * task_mode_switch = RTOS::Task::init("task_mode_switch", task_mode_switch_fn);
+    RTOS::Task_t * task_photocell = RTOS::Task::init("task_photocell", task_photocell_fn);
     
     task_control->period_ms = 60; //20;
     task_control->state = NULL;
     
-    RTOS::Task::dispatch(task_control);
+    task_mode_switch->period_ms = THIRTY_SEC_IN_MS;
     
-    // Start the timer
-    timer_init();
+    task_photocell->period_ms = 0;
+    task_photocell->delay_ms = 0;
+    
+    // RTOS::Task::dispatch(task_control);
+    // RTOS::Task::dispatch(task_mode_switch);
+    RTOS::Task::dispatch(task_photocell);
     
     RTOS::dispatch();
     
