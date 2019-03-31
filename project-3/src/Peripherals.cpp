@@ -104,12 +104,67 @@ void stick_m_on_switch(void (*isr)()) {
 // PHOTOCELL
 //
 
+#define TIMER_COUNT 31250
+
+static bool hit = false;
+volatile static bool dead = false;
+
+ISR(TIMER3_COMPA_vect) {
+    dead = true;
+}
+
+void reset_timer() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3A = 0x00;                 // Clear control register A
+        TCCR3B = 0x00;                 // Clear control register B
+        TCNT3  = 0x00;                 // Clear the counter
+        OCR3A  = TIMER_COUNT;          // The value we are waiting for
+        TCCR3B |= BV(CS32) | BV(CS30); // Scale by 1024
+    }    
+}
+
+void stop_timer() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3B &= 0b11111000;   // Select no clock source
+    }    
+}
+
+void timer_init() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        TCCR3A = 0x00;                 // Clear control register A
+        TCCR3B = 0x00;                 // Clear control register B
+        TCNT3  = 0x00;                 // Clear the counter
+        OCR3A  = TIMER_COUNT;          // The value we are waiting for
+        TCCR3B |= BV(WGM32);           // Use CTC mode
+        // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
+        TIMSK3 |= BV(OCIE3A);          // Enable timer compare interrupt
+    }
+}
+
 void init_photocell() {
     pinMode(PHOTO_PIN, INPUT);
 }
 
 int photocell_hit() {
-    return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
+    if (dead) {
+        Serial1.println("We're dead :(");
+        return true;
+    }
+    
+    if (analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD) {
+        if (!hit) {
+            hit = true;
+            Serial1.println("started timer");
+            reset_timer();
+        }
+    } else {
+        hit = false;
+        Serial1.println("stopped timer");
+        stop_timer();
+    }
+    
+    return false;
+    // return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
 }
 
 //

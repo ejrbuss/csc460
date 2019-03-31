@@ -163,11 +163,11 @@ namespace Roomba {
             }
         }
         
-        Serial1.print(x);
-        Serial1.print(", ");
-        Serial1.print(y);
-        Serial1.print(", ");
-        Serial1.println(command);
+        // Serial1.print(x);
+        // Serial1.print(", ");
+        // Serial1.print(y);
+        // Serial1.print(", ");
+        // Serial1.println(command);
         
         switch(command) {
             case 'f': 

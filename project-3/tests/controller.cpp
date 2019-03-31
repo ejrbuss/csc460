@@ -6,8 +6,6 @@
 
 #define SERIAL_BAUD 9600
 
-int g_done = 0;
-
 bool task_sample_fn(RTOS::Task_t * task) {
     while (Serial1.available()) {
         Serial.write(Serial1.read());
@@ -16,7 +14,6 @@ bool task_sample_fn(RTOS::Task_t * task) {
     Message_t * current_message = (Message_t *) task->state;
     
     if (photocell_hit()) {
-        g_done = 1;
         current_message->flags = MESSAGE_DONE;
     } else {
         current_message->u_x   = sample_stick_u_x();
@@ -56,16 +53,10 @@ int main() {
     
     Serial.print("hello world\n");
     delay(1000);
+    
+    RTOS::Task::dispatch(task_sample);
+    RTOS::dispatch();
 
-    for (;;) {
-        while (Serial1.available()) {
-            Serial.write(Serial1.read());
-        }
-    }
-    
-    // RTOS::Task::dispatch(task_sample);
-    // RTOS::dispatch();
-    
     return 0;
 }
 

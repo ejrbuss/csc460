@@ -121,6 +121,9 @@ void map_servo_tilt(int value, int min_value, int max_value);
 
 #define PHOTO_HIT_THRESHOLD 600
 
+void reset_timer();
+void stop_timer();
+void timer_init();
 void init_photocell();
 int photocell_hit();
 
