@@ -68,6 +68,8 @@ namespace Roomba {
     void send_command(i8 m_x, i8 m_y);
     void get_sensor_data();
     int get_state();
+    void load_song();
+    void play_song(int num);    
     bool check_power(unsigned int *power);
     bool check_power_capacity(unsigned int *power);
     void power_off();

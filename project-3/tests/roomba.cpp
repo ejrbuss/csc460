@@ -14,7 +14,7 @@ bool task_get_sensor_data_fn(Task_t * task) {
     Roomba::get_sensor_data();
     Serial1.print("sensor_ir: ");
     Serial1.println(Roomba::sensor_ir);
-    Serial1.print("sensor_ir: ");
+    Serial1.print("sensor_bumper: ");
     Serial1.println(Roomba::sensor_bumper);
     return true;
 }
@@ -25,6 +25,7 @@ bool task_mode_switch_fn(Task_t * task) {
     } else {
         Roomba::state = Move_State;
     }
+    Roomba::play_song(0);
     return true;
 }
 
@@ -82,6 +83,8 @@ int main() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         Roomba::init();
     }
+    
+    Roomba::load_song();
     
     Task_t * task_control = Task::init("task_control", task_control_fn);
     task_control->period_ms = 60; // 20;    

@@ -185,11 +185,11 @@ namespace Roomba {
             }
         }
         
-        // Serial1.print(x);
-        // Serial1.print(", ");
-        // Serial1.print(y);
-        // Serial1.print(", ");
-        // Serial1.println(command);
+        Serial1.print(x);
+        Serial1.print(", ");
+        Serial1.print(y);
+        Serial1.print(", ");
+        Serial1.println(command);
         
         switch(command) {
             case 'f': 
@@ -217,6 +217,20 @@ namespace Roomba {
             default:
                 break;
         }
+    }
+    
+    void load_song() {
+        write_serial(SONG);
+        write_serial(0);    // song number
+        write_serial(1);    // song length (number of notes)
+
+        write_serial(60);   // middle C
+        write_serial(25);   // duration, in 1/64ths of a second
+    }
+
+    void play_song(int num) {
+        write_serial(PLAY);
+        write_serial(num);  // song number
     }
 
     void start_serial(long baud) {
