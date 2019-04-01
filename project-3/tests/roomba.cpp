@@ -8,20 +8,27 @@
 #define BAUD_RATE_CHANGE_PIN 30
 #define THIRTY_SEC_IN_MS 30000
 
-volatile ROOMBA_STATE rstate = SAFE_MODE;
+using namespace RTOS;
 
-bool task_mode_switch_fn(RTOS::Task_t * task) {
-    if (rstate == SAFE_MODE) {
-        rstate = PASSIVE_MODE;
+bool task_get_sensor_data_fn(Task_t * task) {
+    Roomba::get_sensor_data();
+    Serial1.print("sensor_ir: ");
+    Serial1.println(Roomba::sensor_ir);
+    Serial1.print("sensor_ir: ");
+    Serial1.println(Roomba::sensor_bumper);
+    return true;
+}
+
+bool task_mode_switch_fn(Task_t * task) {
+    if (Roomba::state == Move_State) {
+        Roomba::state = Still_State;
     } else {
-        rstate = SAFE_MODE;
+        Roomba::state = Move_State;
     }
     return true;
 }
 
-bool task_control_fn(RTOS::Task_t * task) {
-    // Set the state of the Roomba
-    Roomba::set_state(rstate);
+bool task_control_fn(Task_t * task) {
     
     // Check if we've been killed
     if (photocell_hit()) {
@@ -76,19 +83,21 @@ int main() {
         Roomba::init();
     }
     
-    RTOS::Task_t * task_control = RTOS::Task::init("task_control", task_control_fn);
-    RTOS::Task_t * task_mode_switch = RTOS::Task::init("task_mode_switch", task_mode_switch_fn);
-    
-    task_control->period_ms = 60; //20;
-    task_control->state = NULL;
-    
+    Task_t * task_control = Task::init("task_control", task_control_fn);
+    task_control->period_ms = 60; // 20;    
+    Task::dispatch(task_control);
+
+    Task_t * task_mode_switch = Task::init("task_mode_switch", task_mode_switch_fn);
     task_mode_switch->period_ms = THIRTY_SEC_IN_MS;
-    
-    RTOS::Task::dispatch(task_control);
-    RTOS::Task::dispatch(task_mode_switch);
+    Task::dispatch(task_mode_switch);
+
+    Task_t * task_get_sensor_data = Task::init("task_get_sensor_data", task_get_sensor_data_fn);
+    task_get_sensor_data->period_ms = 600;
+    task_get_sensor_data->delay_ms  = 30;
+    Task::dispatch(task_get_sensor_data);
     
     RTOS::dispatch();
-    
+
     return 0;
 }
 

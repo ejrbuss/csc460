@@ -6,10 +6,13 @@
 
 namespace Roomba {
     
+    bool sensor_ir       = false;
+    bool sensor_bumper   = false;
+    Roomba_State_t state = Move_State;
+
     static int serial_num = 0;
     static int brc_pin = 0;
     bool initialized = true;
-    int state = SAFE_MODE;
     
     //
     // Private Function Prototypes
@@ -17,6 +20,7 @@ namespace Roomba {
     void start_serial(long baud);
     void write_serial(char val);
     bool read_serial(char *val);
+    int available_serial();
     
     //serial_connector determines which UART the Roomba is connected to (0, 1, etc)
     //brc_pin determines where the baud rate change pin is connected.
@@ -127,6 +131,24 @@ namespace Roomba {
         write_serial(DOCK);
     }
 
+    void get_sensor_data() {
+        static bool waiting_for_data = false;
+        if (!waiting_for_data) {
+            write_serial(SENSORS);
+            write_serial(7);
+            write_serial(SENSORS);
+            write_serial(13);
+            waiting_for_data = true;
+        } else if (available_serial() >= 2) {
+            char data;
+            read_serial(&data);
+            sensor_ir     = data ? true : false;
+            read_serial(&data);
+            sensor_bumper = data & 0b11 ? true : false;
+            waiting_for_data = false;
+        }
+    }
+
     void get_data() {
         char val;
         while(read_serial(&val));
@@ -140,7 +162,7 @@ namespace Roomba {
         
         char command;
         
-        if (state == SAFE_MODE) {
+        if (state == Move_State) {
             if (x > -10 && x < 10 && y > -10 && y < 10) {
                 command = 's';
             } else if (x > -10 && x < 10 && y < 0) {
@@ -195,15 +217,6 @@ namespace Roomba {
             default:
                 break;
         }
-    }
-    
-    int get_state() {
-        return state;
-    }
-    
-    void set_state(ROOMBA_STATE new_state) {
-        if (state != new_state) Serial1.println(state);
-        state = new_state;
     }
 
     void start_serial(long baud) {
@@ -271,6 +284,21 @@ namespace Roomba {
         case 3:
             Serial3.write(val);
             break;
+        }
+    }
+
+    int available_serial() {
+        switch(serial_num){
+        case 0:
+            return Serial.available();
+        case 1:
+            return Serial1.available();
+        case 2:
+            return Serial2.available();
+        case 3:
+            return Serial3.available();
+        default:
+            return 0;
         }
     }
 

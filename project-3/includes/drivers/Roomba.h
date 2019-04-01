@@ -49,12 +49,16 @@ typedef enum _br {
 } ROOMBA_BITRATE;
 
 // Arguments to the change_state function
-typedef enum _rstate {
-	PASSIVE_MODE,
-	SAFE_MODE,
-} ROOMBA_STATE;
+typedef enum Roomba_State_t {
+    Move_State,
+    Still_State,
+} Roomba_State_t;
 
 namespace Roomba {
+
+    extern bool sensor_ir;
+    extern bool sensor_bumper;
+    extern Roomba_State_t state;
     
     void configure(int serial_connector, int brc_pin);
     void init();
@@ -62,8 +66,8 @@ namespace Roomba {
     void dock();
     void get_data();
     void send_command(i8 m_x, i8 m_y);
+    void get_sensor_data();
     int get_state();
-    void set_state(ROOMBA_STATE newState);
     bool check_power(unsigned int *power);
     bool check_power_capacity(unsigned int *power);
     void power_off();
