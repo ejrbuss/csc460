@@ -32,6 +32,9 @@
 #define DOCK    143     // force the Roomba to seek its dock.
 #define STOP    173
 
+#define SENSOR_BUMPER 7
+#define SENSOR_IR     13
+
 // Arguments to the BAUD command
 typedef enum _br {
     ROOMBA_300BPS = 0,
@@ -60,8 +63,7 @@ namespace Roomba {
     extern bool sensor_bumper;
     extern Roomba_State_t state;
     
-    void configure(int serial_connector, int brc_pin);
-    void init();
+    void init(int serial_connector, int brc_pin);
     void drive(int velocity, int radius);
     void dock();
     void get_data();

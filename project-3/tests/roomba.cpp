@@ -6,25 +6,42 @@
 #define SERIAL_BAUD 9600
 #define ROOMBA_UART 2
 #define BAUD_RATE_CHANGE_PIN 30
-#define THIRTY_SEC_IN_MS 30000
+
+#define PRINT_SENSOR
+#define PRINT_STATE
+#define PRINT_DEATH
 
 using namespace RTOS;
 
+void wait_a_moment() {
+    delay(100);
+}
+
 bool task_get_sensor_data_fn(Task_t * task) {
     Roomba::get_sensor_data();
-    Serial1.print("sensor_ir: ");
-    Serial1.println(Roomba::sensor_ir);
-    Serial1.print("sensor_ir: ");
-    Serial1.println(Roomba::sensor_bumper);
+    #ifdef PRINT_SENSOR
+        debug_print(
+            "sensor_ir: %d sensor_bumper: %d\n", 
+            (int) Roomba::sensor_ir, 
+            (int) Roomba::sensor_bumper
+        );
+    #endif
     return true;
 }
 
 bool task_mode_switch_fn(Task_t * task) {
     if (Roomba::state == Move_State) {
         Roomba::state = Still_State;
+        #ifdef PRINT_STATE
+            debug_print("state: Still_State");
+        #endif
     } else {
         Roomba::state = Move_State;
+        #ifdef PRINT_STATE
+            debug_print("state: Move_State");
+        #endif
     }
+    // Roomba::beep();
     return true;
 }
 
@@ -32,8 +49,11 @@ bool task_control_fn(Task_t * task) {
     
     // Check if we've been killed
     if (photocell_hit()) {
-        Serial1.println("Turning off.");
+        #ifdef PRINT_DEATH
+            debug_print("I am dead now.");
+        #endif
         // maybe create a shut down task...
+        // cleanup();
         set_laser(OFF);
         return false;
     }
@@ -43,17 +63,11 @@ bool task_control_fn(Task_t * task) {
     
     // Control
     if (current_message) {
-        if (current_message->flags & MESSAGE_DONE) {
-            // message_print(Serial, *current_message);
-        } else {
-            map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
-            map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
-            Roomba::send_command(current_message->m_x, current_message->m_y);
-            // map_roomba_x(current_message->m_x, 0, STICK_M_OFFSET_X);
-            // map_roomba_y(current_message->m_y, 0, STICK_M_OFFSET_Y);
-            set_laser(current_message->flags & MESSAGE_LASER);
-            current_message = NULL;
-        }
+        map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
+        map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
+        Roomba::send_command(current_message->m_x, current_message->m_y);
+        set_laser(current_message->flags & MESSAGE_LASER);
+        current_message = NULL;
     }
     
     task->state = (void *) current_message;
@@ -70,17 +84,15 @@ int main() {
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);
     
-    // Give things a moment
-    delay(100);
+    wait_a_moment();
 
     // Clear any messages in the bluetooth buffer
     while (Serial1.available()) { Serial1.read(); }
     
-    delay(100);
+    wait_a_moment();
     
-    Roomba::configure(ROOMBA_UART, BAUD_RATE_CHANGE_PIN);
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        Roomba::init();
+        Roomba::init(ROOMBA_UART, BAUD_RATE_CHANGE_PIN);
     }
     
     Task_t * task_control = Task::init("task_control", task_control_fn);
@@ -88,7 +100,7 @@ int main() {
     Task::dispatch(task_control);
 
     Task_t * task_mode_switch = Task::init("task_mode_switch", task_mode_switch_fn);
-    task_mode_switch->period_ms = THIRTY_SEC_IN_MS;
+    task_mode_switch->period_ms = 30 * 1000;
     Task::dispatch(task_mode_switch);
 
     Task_t * task_get_sensor_data = Task::init("task_get_sensor_data", task_get_sensor_data_fn);
@@ -105,7 +117,9 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
-        return;
+        if (trace->tag == Debug_Message) {
+            Serial1.print(trace->debug.message);
+        }
     }
 
     bool error(Trace_t * trace) {

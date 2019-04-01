@@ -77,7 +77,10 @@ namespace Roomba {
         write_serial(STOP);
     }
     
-    void init() {
+    void init(int serial_connector, int baud_pin) {
+        serial_num = serial_connector;
+        brc_pin = baud_pin;
+        pinMode(brc_pin, OUTPUT);
         Serial1.println("Init");
         start_serial(19200U);
         digitalWrite(brc_pin, HIGH);
@@ -105,17 +108,6 @@ namespace Roomba {
         write_serial(SAFE);
 
         Serial1.println("Done");
-        
-        /*
-        unsigned int power_cap = 0;
-        check_power(&power);
-        check_power_capacity(&power_cap);
-        //Serial.printt("Power: ");
-        //Serial.printt(power);
-        //Serial.printt(" / ");
-        //Serial.printtln(power_cap);
-        //Serial.printtln("Done Startup");
-        */
     }
 
     void drive(int velocity, int radius) {
@@ -135,9 +127,9 @@ namespace Roomba {
         static bool waiting_for_data = false;
         if (!waiting_for_data) {
             write_serial(SENSORS);
-            write_serial(7);
+            write_serial(SENSOR_IR);
             write_serial(SENSORS);
-            write_serial(13);
+            write_serial(SENSOR_BUMPER);
             waiting_for_data = true;
         } else if (available_serial() >= 2) {
             char data;
@@ -156,7 +148,7 @@ namespace Roomba {
     
     void send_command(i8 x, i8 y) {
         if(!initialized) {
-            init();
+            init(serial_num, brc_pin);
             initialized = true;
         }
         
