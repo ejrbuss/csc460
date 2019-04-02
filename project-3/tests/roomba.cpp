@@ -9,7 +9,7 @@
 #define ROOMBA_UART 2
 #define BAUD_RATE_CHANGE_PIN 30
 
-#define PRINT_SENSOR
+// #define PRINT_SENSOR
 #define PRINT_STATE
 #define PRINT_DEATH
 
@@ -50,15 +50,15 @@ bool task_mode_switch_fn(Task_t * task) {
 bool task_control_fn(Task_t * task) {
     
     // Check if we've been killed
-    if (photocell_hit()) {
-        #ifdef PRINT_DEATH
-            debug_print("I am dead now.");
-        #endif
-        // maybe create a shut down task...
-        // cleanup();
-        set_laser(OFF);
-        return false;
-    }
+    // if (photocell_hit()) {
+    //     #ifdef PRINT_DEATH
+    //         debug_print("I am dead now.");
+    //     #endif
+    //     // maybe create a shut down task...
+    //     // cleanup();
+    //     set_laser(OFF);
+    //     return false;
+    // }
     
     // Receive
     Message_t * current_message = Message::receive((Message_t *) task->state);
@@ -80,8 +80,10 @@ int main() {
     RTOS::init();
     init_photocell();
     init_laser();
+    init_servo_pan();
+    init_servo_tilt();
     
-    set_laser(ON);  // for testing
+    // set_laser(ON);  // for testing
     
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);
@@ -100,7 +102,7 @@ int main() {
     Roomba::load_song();
     
     Task_t * task_control = Task::init("task_control", task_control_fn);
-    task_control->period_ms = 60; // 20;    
+    task_control->period_ms = 20;    
     Task::dispatch(task_control);
 
     Task_t * task_mode_switch = Task::init("task_mode_switch", task_mode_switch_fn);

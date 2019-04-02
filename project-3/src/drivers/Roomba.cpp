@@ -8,7 +8,7 @@ namespace Roomba {
     
     bool sensor_ir       = false;
     bool sensor_bumper   = false;
-    Roomba_State_t state = Move_State;
+    Roomba_State_t state = Still_State;
 
     static int serial_num = 0;
     static int brc_pin = 0;
@@ -177,11 +177,11 @@ namespace Roomba {
             }
         }
         
-        Serial1.print(x);
-        Serial1.print(", ");
-        Serial1.print(y);
-        Serial1.print(", ");
-        Serial1.println(command);
+        // Serial1.print(x);
+        // Serial1.print(", ");
+        // Serial1.print(y);
+        // Serial1.print(", ");
+        // Serial1.println(command);
         
         switch(command) {
             case 'f': 

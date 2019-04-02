@@ -36,6 +36,7 @@ bool task_sample_fn(RTOS::Task_t * task) {
 
 int main() {
     RTOS::init();
+    init_stick_u_sw();
     
     Serial1.begin(SERIAL_BAUD);
     Serial.begin(SERIAL_BAUD);
@@ -48,7 +49,7 @@ int main() {
     
     RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
     
-    task_sample->period_ms = 80; // 32;
+    task_sample->period_ms = 32;
     task_sample->state = (void *) &current_message;
     
     Serial.print("hello world\n");
@@ -65,6 +66,9 @@ namespace UDF {
 
     void trace(Trace_t * trace) {
         // Trace::serial_trace(trace);
+        if (trace->tag == Debug_Message) {
+            Serial.print(trace->debug.message);
+        }
         return;
     }
 

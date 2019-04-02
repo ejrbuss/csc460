@@ -1,4 +1,5 @@
 #include "Peripherals.h"
+#include "RTOS.h"
 
 //
 // LASER
@@ -8,56 +9,57 @@
 volatile static bool laser_enabled = true;
 volatile static int seconds = 0;
 
-ISR(TIMER4_COMPA_vect) {
-    seconds++;
-    if (seconds == 10) {
-        Serial1.println("Laser is now disabled.");
-        laser_enabled = false;
-    }
-}
+// ISR(TIMER4_COMPA_vect) {
+//     seconds++;
+//     if (seconds == 10) {
+//         Serial1.println("Laser is now disabled.");
+//         laser_enabled = false;
+//     }
+// }
 
-void start_laser_timer() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR4B |= BV(CS42) | BV(CS40); // Scale by 1024
-    }    
-}
+// void start_laser_timer() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR4B |= BV(CS42) | BV(CS40); // Scale by 1024
+//     }    
+// }
 
-void pause_laser_timer() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR4B &= 0b11111000;   // Select no clock source
-    }    
-}
+// void pause_laser_timer() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR4B &= 0b11111000;   // Select no clock source
+//     }    
+// }
 
-void laser_timer_init() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR4A = 0x00;                 // Clear control register A
-        TCCR4B = 0x00;                 // Clear control register B
-        TCNT4  = 0x00;                 // Clear the counter
-        OCR4A  = TIMER_COUNT_LASER;    // The value we are waiting for
-        TCCR4B |= BV(WGM42);           // Use CTC mode
-        // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
-        TIMSK4 |= BV(OCIE4A);          // Enable timer compare interrupt
-    }
-}
+// void laser_timer_init() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR4A = 0x00;                 // Clear control register A
+//         TCCR4B = 0x00;                 // Clear control register B
+//         TCNT4  = 0x00;                 // Clear the counter
+//         OCR4A  = TIMER_COUNT_LASER;    // The value we are waiting for
+//         TCCR4B |= BV(WGM42);           // Use CTC mode
+//         // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
+//         TIMSK4 |= BV(OCIE4A);          // Enable timer compare interrupt
+//     }
+// }
 
 void init_laser() {
-    laser_timer_init();
+    // laser_timer_init();
     pinMode(LASER_PIN, OUTPUT);
     digitalWrite(LASER_PIN, LOW);
 }
 
 void set_laser(int on) {
-    if (!laser_enabled) {
-        digitalWrite(LASER_PIN, OFF);
-        return;
-    }
+    // if (!laser_enabled) {
+    //     digitalWrite(LASER_PIN, OFF);
+    //     return;
+    // }
     
+    // digitalWrite(LASER_PIN, on);
+    // if (on == ON) {
+    //     start_laser_timer();
+    // } else {
+    //     pause_laser_timer();
+    // }
     digitalWrite(LASER_PIN, on);
-    if (on == ON) {
-        start_laser_timer();
-    } else {
-        pause_laser_timer();
-    }
 }
 
 //
@@ -156,63 +158,63 @@ void stick_m_on_switch(void (*isr)()) {
 static bool hit = false;
 volatile static bool dead = false;
 
-ISR(TIMER3_COMPA_vect) {
-    dead = true;
-}
+// ISR(TIMER3_COMPA_vect) {
+//     dead = true;
+// }
 
-void reset_photocell_timer() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR3A = 0x00;                 // Clear control register A
-        TCCR3B = 0x00;                 // Clear control register B
-        TCNT3  = 0x00;                 // Clear the counter
-        OCR3A  = TIMER_COUNT_PHOTOCELL;          // The value we are waiting for
-        TCCR3B |= BV(CS32) | BV(CS30); // Scale by 1024
-    }    
-}
+// void reset_photocell_timer() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR3A = 0x00;                 // Clear control register A
+//         TCCR3B = 0x00;                 // Clear control register B
+//         TCNT3  = 0x00;                 // Clear the counter
+//         OCR3A  = TIMER_COUNT_PHOTOCELL;          // The value we are waiting for
+//         TCCR3B |= BV(CS32) | BV(CS30); // Scale by 1024
+//     }    
+// }
 
-void stop_photocell_timer() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR3B &= 0b11111000;   // Select no clock source
-    }    
-}
+// void stop_photocell_timer() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR3B &= 0b11111000;   // Select no clock source
+//     }    
+// }
 
-void photocell_timer_init() {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        TCCR3A = 0x00;                  // Clear control register A
-        TCCR3B = 0x00;                  // Clear control register B
-        TCNT3  = 0x00;                  // Clear the counter
-        OCR3A  = TIMER_COUNT_PHOTOCELL; // The value we are waiting for
-        TCCR3B |= BV(WGM32);            // Use CTC mode
-        // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
-        TIMSK3 |= BV(OCIE3A);           // Enable timer compare interrupt
-    }
-}
+// void photocell_timer_init() {
+//     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+//         TCCR3A = 0x00;                  // Clear control register A
+//         TCCR3B = 0x00;                  // Clear control register B
+//         TCNT3  = 0x00;                  // Clear the counter
+//         OCR3A  = TIMER_COUNT_PHOTOCELL; // The value we are waiting for
+//         TCCR3B |= BV(WGM32);            // Use CTC mode
+//         // TCCR3B |= BV(CS31) | BV(CS30); // Scale by 64
+//         TIMSK3 |= BV(OCIE3A);           // Enable timer compare interrupt
+//     }
+// }
 
 void init_photocell() {
-    photocell_timer_init();
+    // photocell_timer_init();
     pinMode(PHOTO_PIN, INPUT);
 }
 
 int photocell_hit() {
-    if (dead) {
-        Serial1.println("We're dead :(");
-        return true;
-    }
+    // if (dead) {
+    //     Serial1.println("We're dead :(");
+    //     return true;
+    // }
     
-    if (analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD) {
-        if (!hit) {
-            hit = true;
-            Serial1.println("started timer");
-            reset_photocell_timer();
-        }
-    } else {
-        hit = false;
-        // Serial1.println("stopped timer");
-        stop_photocell_timer();
-    }
+    // if (analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD) {
+    //     if (!hit) {
+    //         hit = true;
+    //         Serial1.println("started timer");
+    //         reset_photocell_timer();
+    //     }
+    // } else {
+    //     hit = false;
+    //     // Serial1.println("stopped timer");
+    //     stop_photocell_timer();
+    // }
     
-    return false;
-    // return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
+    // return false;
+    return analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
 }
 
 //
@@ -228,7 +230,7 @@ void init_servo_pan() {
 void map_servo_pan(int value, int min_value, int max_value) {
     static int servo_pan_position = SERVO_PAN_CENTER;
     static int last_call = 0;
-    int this_call = millis();
+    int this_call = RTOS::Time::now();
     if (this_call - last_call < SERVO_PAN_DELAY) {
         return;
     }
@@ -238,6 +240,7 @@ void map_servo_pan(int value, int min_value, int max_value) {
     Q78_t delta = Q78_mul(range, ratio);
     servo_pan_position += clamp(Q78_to_int(delta), -SERVO_PAN_MAX_SPEED, SERVO_PAN_MAX_SPEED);
     servo_pan_position =  clamp(servo_pan_position, SERVO_PAN_BOTTOM, SERVO_PAN_TOP);
+    // RTOS::debug_print("pan:  %d\n", servo_pan_position);
     servo_pan.writeMicroseconds(servo_pan_position);
 }
 
@@ -254,7 +257,7 @@ void init_servo_tilt() {
 void map_servo_tilt(int value, int min_value, int max_value) {
     static int servo_tilt_position = SERVO_TILT_CENTER;
     static int last_call = 0;
-    int this_call = millis();
+    int this_call = RTOS::Time::now();
     if (this_call - last_call < SERVO_TILT_DELAY) {
         return;
     }
@@ -264,5 +267,6 @@ void map_servo_tilt(int value, int min_value, int max_value) {
     Q78_t delta = Q78_mul(range, ratio);
     servo_tilt_position += clamp(Q78_to_int(delta), -SERVO_TILT_MAX_SPEED, SERVO_TILT_MAX_SPEED);
     servo_tilt_position =  clamp(servo_tilt_position, SERVO_TILT_BOTTOM, SERVO_TILT_TOP);
+    // RTOS::debug_print("tilt: %d\n", servo_tilt_position);
     servo_tilt.writeMicroseconds(servo_tilt_position);
 }
