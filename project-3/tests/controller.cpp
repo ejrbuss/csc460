@@ -48,7 +48,7 @@ int main() {
     
     RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
     
-    task_sample->period_ms = 80; //32;
+    task_sample->period_ms = 80; // 32;
     task_sample->state = (void *) &current_message;
     
     Serial.print("hello world\n");

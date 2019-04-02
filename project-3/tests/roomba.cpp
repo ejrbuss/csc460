@@ -3,6 +3,8 @@
 #include "Peripherals.h"
 #include "Roomba.h"
 
+#include "Private.h"
+
 #define SERIAL_BAUD 9600
 #define ROOMBA_UART 2
 #define BAUD_RATE_CHANGE_PIN 30
@@ -119,6 +121,7 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
+        Trace::serial_trace(trace);
         if (trace->tag == Debug_Message) {
             Serial1.print(trace->debug.message);
         }

@@ -32,6 +32,7 @@ namespace RTOS {
             Task_t * task;
 
             task = Registers::periodic_tasks;
+
             if (task != nullptr) {
                 i64 time_remaining = Task::time_remaining(task, this_time);
                 if (time_remaining <= 0) {
