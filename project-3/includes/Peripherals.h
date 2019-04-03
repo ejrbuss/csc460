@@ -43,7 +43,7 @@ LiquidCrystal init_lcd();
 //
 
 #define STICK_SCALE      8
-#define STICK_LFP_FACTOR Q78(0.1)
+#define STICK_LFP_FACTOR 0.1 // Q78(0.1)
 
 // 
 // STICK_U
@@ -63,8 +63,8 @@ LiquidCrystal init_lcd();
 #define STICK_U_MAX_Y ((STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
 #define STICK_U_MIN_Y (-STICK_U_MAX_Y)
 
-int sample_stick_u_x();
-int sample_stick_u_y();
+i8 sample_stick_u_x();
+i8 sample_stick_u_y();
 void init_stick_u_sw();
 int stick_u_down();
 void stick_u_on_switch(void (*isr)());
@@ -89,8 +89,8 @@ void stick_u_on_switch(void (*isr)());
 #define STICK_M_MAX_Y    ((STICK_M_OFFSET_Y / STICK_SCALE) - (2 * STICK_M_DEADZONE))
 #define STICK_M_MIN_Y    (-STICK_M_MAX_Y)
 
-int sample_stick_m_x();
-int sample_stick_m_y();
+i8 sample_stick_m_x();
+i8 sample_stick_m_y();
 void stick_m_on_switch(void (*isr)());
 
 //

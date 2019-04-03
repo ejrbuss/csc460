@@ -48,6 +48,33 @@ LiquidCrystal init_lcd() {
 // STICK_U
 //
 
+i8 sample_stick_u_x() {
+    static float rolling_x = 0;
+    float sample = (analogRead(STICK_U_PIN_X) / STICK_SCALE) - STICK_U_OFFSET_X;
+    rolling_x = sample * STICK_LFP_FACTOR + (rolling_x * (1.0 - STICK_LFP_FACTOR));
+    i8 x = rolling_x;
+    if (x < 0) {
+        x = clamp(x + STICK_U_DEADZONE, STICK_U_MIN_X, 0);
+    } else if (x > 0) {
+        x = clamp(x - STICK_U_DEADZONE, 0, STICK_U_MAX_X);
+    }
+    return x;
+}
+
+i8 sample_stick_u_y() {
+    static float rolling_y = 0;
+    float sample = (analogRead(STICK_U_PIN_Y) / STICK_SCALE) - STICK_U_OFFSET_Y;
+    rolling_y = sample * STICK_LFP_FACTOR + (rolling_y * (1.0 - STICK_LFP_FACTOR));
+    i8 y = rolling_y;
+    if (y < 0) {
+        y = clamp(y + STICK_U_DEADZONE, STICK_U_MIN_Y, 0);
+    } else if (y > 0) {
+        y = clamp(y - STICK_U_DEADZONE, 0, STICK_U_MAX_Y);
+    }
+    return y;
+}
+
+/*
 int sample_stick_u_x() {
     static Q78_t rolling_x = Q78(0);
     static Q78_t sample_x  = Q78(0);
@@ -75,6 +102,7 @@ int sample_stick_u_y() {
     }
     return y;
 }
+*/
 
 void stick_u_on_switch(void (*isr)()) {
     attachInterrupt(digitalPinToInterrupt(STICK_U_PIN_SW), isr, CHANGE);
@@ -92,6 +120,33 @@ int stick_u_down() {
 // STICK_M
 //
 
+i8 sample_stick_m_x() {
+    static float rolling_x = 0;
+    float sample = (analogRead(STICK_M_PIN_X) / STICK_SCALE) - STICK_M_OFFSET_X;
+    rolling_x = sample * STICK_LFP_FACTOR + (rolling_x * (1.0 - STICK_LFP_FACTOR));
+    i8 x = rolling_x;
+    if (x < 0) {
+        x = clamp(x + STICK_M_DEADZONE, STICK_M_MIN_X, 0);
+    } else if (x > 0) {
+        x = clamp(x - STICK_M_DEADZONE, 0, STICK_M_MAX_X);
+    }
+    return x;
+}
+
+i8 sample_stick_m_y() {
+    static float rolling_y = 0;
+    float sample = (analogRead(STICK_M_PIN_Y) / STICK_SCALE) - STICK_M_OFFSET_Y;
+    rolling_y = sample * STICK_LFP_FACTOR + (rolling_y * (1.0 - STICK_LFP_FACTOR));
+    i8 y = rolling_y;
+    if (y < 0) {
+        y = clamp(y + STICK_M_DEADZONE, STICK_M_MIN_Y, 0);
+    } else if (y > 0) {
+        y = clamp(y - STICK_M_DEADZONE, 0, STICK_M_MAX_Y);
+    }
+    return y;
+}
+
+/*
 int sample_stick_m_x() {
     static Q78_t rolling_x = Q78(0);
     static Q78_t sample_x  = Q78(0);
@@ -119,6 +174,7 @@ int sample_stick_m_y() {
     }
     return y;
 }
+*/
 
 void stick_m_on_switch(void (*isr)()) {
     pinMode(STICK_M_PIN_SW, INPUT_PULLUP);
