@@ -10,6 +10,9 @@
 #ifndef ROOMBA_H
 #define ROOMBA_H
 
+#define SONG_MOVE  0
+#define SONG_STILL 1
+
 #define HIGH_BYTE(x) (x >> 8)
 #define LOW_BYTE(x)  (x & 0xFF)
 
@@ -65,16 +68,12 @@ namespace Roomba {
     
     void init(int serial_connector, int brc_pin);
     void drive(int velocity, int radius);
+    void power_off();
     void dock();
-    void get_data();
+    void map_move(i8 x, i8 y);
     void send_command(i8 m_x, i8 m_y);
     void get_sensor_data();
-    int get_state();
-    void load_song();
     void play_song(int num);    
-    bool check_power(unsigned int *power);
-    bool check_power_capacity(unsigned int *power);
-    void power_off();
     
 }
 

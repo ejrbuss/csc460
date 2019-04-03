@@ -21,62 +21,16 @@ namespace Roomba {
     void write_serial(char val);
     bool read_serial(char *val);
     int available_serial();
-    
-    //serial_connector determines which UART the Roomba is connected to (0, 1, etc)
-    //brc_pin determines where the baud rate change pin is connected.
-    void configure(int serial_connector, int baud_pin) {
-        serial_num = serial_connector;
-        brc_pin = baud_pin;
-        pinMode(brc_pin, OUTPUT);
-    }
-
-    // Checks the remaining power level.
-    bool check_power(unsigned int *power) {
-        //Serial.printtln("cp");
-        char battery_charge_high = 0;
-        char battery_charge_low = 0;
-        
-        while(read_serial(&battery_charge_high));
-        write_serial(SENSORS);
-        write_serial(25);
-        bool return_value = false;
-        delay(50);
-        return_value = read_serial(&battery_charge_high);
-        read_serial(&battery_charge_low);
-
-        if (return_value) {
-            *power = 0;
-            *power = (battery_charge_high << 8) | (battery_charge_low);
-        }
-        
-        return return_value;
-    }
-
-    // Checks the total power capacity.
-    bool check_power_capacity(unsigned int *power) {
-        //Serial.printtln("cpc");
-        char battery_charge_high = 0;
-        char battery_charge_low = 0;
-        
-        while(read_serial(&battery_charge_high));
-        write_serial(SENSORS);
-        write_serial(26);
-        bool return_value = false;
-        delay(50);
-        return_value = read_serial(&battery_charge_high);
-        read_serial(&battery_charge_low);
-
-        if (return_value) {
-            *power = 0;
-            *power = (battery_charge_high << 8) | (battery_charge_low);
-        }
-        return return_value;
-    }
+    void load_songs();
 
     void power_off() {
         write_serial(STOP);
     }
     
+    void dock() {
+        write_serial(DOCK);
+    }
+
     void init(int serial_connector, int baud_pin) {
         serial_num = serial_connector;
         brc_pin = baud_pin;
@@ -107,6 +61,8 @@ namespace Roomba {
         //Enter safe mode
         write_serial(SAFE);
 
+        load_songs();
+
         Serial1.println("Done");
     }
 
@@ -117,10 +73,6 @@ namespace Roomba {
         write_serial(LOW_BYTE(velocity));
         write_serial(HIGH_BYTE(radius));
         write_serial(LOW_BYTE(radius));
-    }
-
-    void dock() {
-        write_serial(DOCK);
     }
 
     void get_sensor_data() {
@@ -141,9 +93,8 @@ namespace Roomba {
         }
     }
 
-    void get_data() {
-        char val;
-        while(read_serial(&val));
+    void map_move(i8 x, i8 y) {
+        send_command(x, y);
     }
     
     void send_command(i8 x, i8 y) {
@@ -211,13 +162,20 @@ namespace Roomba {
         }
     }
     
-    void load_song() {
+    void load_songs() {
         write_serial(SONG);
-        write_serial(0);    // song number
-        write_serial(1);    // song length (number of notes)
+        write_serial(SONG_MOVE);   // song number
+        write_serial(1);           // song length (number of notes)
 
-        write_serial(60);   // middle C
-        write_serial(25);   // duration, in 1/64ths of a second
+        write_serial(67);          // G
+        write_serial(25);          // duration, in 1/64ths of a second
+
+        write_serial(SONG);
+        write_serial(SONG_STILL); // song number
+        write_serial(1);          // song length (number of notes)
+
+        write_serial(60);         // middle C
+        write_serial(25);         // duration, in 1/64ths of a second
     }
 
     void play_song(int num) {

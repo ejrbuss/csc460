@@ -5,7 +5,6 @@
 #include "LiquidCrystal.h"
 #include "RTOS.h"
 
-
 #ifndef PERIPHERALS_H
 #define PERIPHERALS_H
 
@@ -58,11 +57,11 @@ LiquidCrystal init_lcd();
 #define STICK_U_OFFSET_Y 506
 #define STICK_U_DEADZONE (50 / STICK_SCALE)
 
-#define STICK_U_MAX_X    (Q78(STICK_U_OFFSET_X / STICK_SCALE) - (2 * STICK_U_DEADZONE))
-#define STICK_U_MIN_X    (-STICK_U_MAX_X)
+#define STICK_U_MAX_X (Q78(STICK_U_OFFSET_X / STICK_SCALE) - (2 * STICK_U_DEADZONE))
+#define STICK_U_MIN_X (-STICK_U_MAX_X)
 
-#define STICK_U_MAX_Y    (Q78(STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
-#define STICK_U_MIN_Y    (-STICK_U_MAX_Y)
+#define STICK_U_MAX_Y (Q78(STICK_U_OFFSET_Y / STICK_SCALE) - (2 * STICK_U_DEADZONE))
+#define STICK_U_MIN_Y (-STICK_U_MAX_Y)
 
 int sample_stick_u_x();
 int sample_stick_u_y();
@@ -130,9 +129,6 @@ void map_servo_tilt(int value, int min_value, int max_value);
 
 #define PHOTO_HIT_THRESHOLD 600
 
-void reset_photocell_timer();
-void stop_photocell_timer();
-void photocell_timer_init();
 void init_photocell();
 bool photocell_hit();
 

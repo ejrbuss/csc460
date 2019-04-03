@@ -46,16 +46,17 @@ bool task_get_sensor_data_fn(Task_t * task) {
 bool task_mode_switch_fn(Task_t * task) {
     if (Roomba::state == Move_State) {
         Roomba::state = Still_State;
+        Roomba::play_song(SONG_STILL);
         #ifdef PRINT_STATE
             debug_print("state: Still_State\n");
         #endif
     } else {
         Roomba::state = Move_State;
+        Roomba::play_song(SONG_MOVE);
         #ifdef PRINT_STATE
             debug_print("state: Move_State\n");
         #endif
     }
-    Roomba::play_song(0);
     return true;
 }
 
@@ -90,7 +91,7 @@ bool task_control_fn(Task_t * task) {
         map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
         map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
         if (!override_control) {
-            Roomba::send_command(current_message->m_x, current_message->m_y);
+            Roomba::map_move(current_message->m_x, current_message->m_y);
         }
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
@@ -120,9 +121,7 @@ int main() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         Roomba::init(ROOMBA_UART, BAUD_RATE_CHANGE_PIN);
     }
-    
-    Roomba::load_song();
-    
+        
     Task_t * task_control = Task::init("task_control", task_control_fn);
     task_control->period_ms = 20;    
     Task::dispatch(task_control);
