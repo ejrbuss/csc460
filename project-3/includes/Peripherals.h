@@ -43,7 +43,7 @@ LiquidCrystal init_lcd();
 //
 
 #define STICK_SCALE      8
-#define STICK_LFP_FACTOR 0.1 // Q78(0.1)
+#define STICK_LFP_FACTOR Q78(0.1)
 
 // 
 // STICK_U
