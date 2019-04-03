@@ -6,9 +6,14 @@
 
 #include "Arduino.h"
 #include "RTOS.h"
+#include "Compute.h"
 
 #ifndef ROOMBA_H
 #define ROOMBA_H
+
+#define MAX_SPEED 150
+#define MIN_SPEED 50
+#define MAX_TURN_RADIUS 32768
 
 #define SONG_MOVE  0
 #define SONG_STILL 1
@@ -70,8 +75,7 @@ namespace Roomba {
     void drive(int velocity, int radius);
     void power_off();
     void dock();
-    void map_move(i8 x, i8 y);
-    void send_command(i8 m_x, i8 m_y);
+    void move(float x, float y);
     void get_sensor_data();
     void play_song(int num);    
     

@@ -93,8 +93,28 @@ namespace Roomba {
         }
     }
 
-    void map_move(i8 x, i8 y) {
-        send_command(x, y);
+    void move(float x, float y) {
+
+        int radius = x * MAX_TURN_RADIUS;
+        radius = MAX_TURN_RADIUS - radius;
+        if (radius == 0) {
+            radius = x > 0 ? 1 : -1;
+        }
+        
+        int velocity = x == 0 ? 0 : MIN_SPEED;
+        
+        if (state == Move_State) {
+            velocity = y * MAX_SPEED;
+            if (x != 0) {
+                if (velocity > 0) {
+                    velocity = clamp(velocity, MIN_SPEED, MAX_SPEED);
+                } else {
+                    velocity = clamp(velocity, -MAX_SPEED, -MIN_SPEED);
+                }
+            }
+        }
+
+        drive(velocity, radius);
     }
     
     void send_command(i8 x, i8 y) {

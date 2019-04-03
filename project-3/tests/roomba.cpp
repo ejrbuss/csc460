@@ -80,18 +80,20 @@ bool task_control_fn(Task_t * task) {
             i64 now = Time::now();
             override_time += now - override_last_time;
             override_last_time = now;
-            Roomba::send_command(0, Q78_to_int(STICK_M_MAX_Y));
+            Roomba::move(0, 1);
         }
     }
     
     Message_t * current_message = Message::receive((Message_t *) task->state);
     
     if (current_message) {
-        // debug_print("here\n");
         map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
         map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
         if (!override_control) {
-            Roomba::map_move(current_message->m_x, current_message->m_y);
+            Roomba::move(
+                Q78_to_float( Q78_div(Q78(current_message->m_x), STICK_M_MAX_X)),
+                Q78_to_float(-Q78_div(Q78(current_message->m_y), STICK_M_MAX_Y))
+            );
         }
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
