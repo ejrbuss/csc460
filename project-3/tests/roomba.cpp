@@ -8,6 +8,7 @@
 #define SERIAL_BAUD 9600
 #define ROOMBA_UART 2
 #define BAUD_RATE_CHANGE_PIN 30
+#define MAX_OVERRIDE_TIME 1000
 
 // #define PRINT_SENSOR
 #define PRINT_STATE
@@ -15,19 +16,30 @@
 
 using namespace RTOS;
 
+static bool override_control  = false;
+static i64 override_time      = 0;
+static i64 override_last_time = 0;
+
 void wait_a_moment() {
     delay(100);
 }
 
 bool task_get_sensor_data_fn(Task_t * task) {
-    Roomba::get_sensor_data();
-    #ifdef PRINT_SENSOR
-        debug_print(
-            "sensor_ir: %d sensor_bumper: %d\n", 
-            (int) Roomba::sensor_ir, 
-            (int) Roomba::sensor_bumper
-        );
-    #endif
+    if (Roomba::state == Move_State) {
+        Roomba::get_sensor_data();
+        if (Roomba::sensor_ir || Roomba::sensor_bumper) {
+            override_control = true;
+            override_time = 0;
+            override_last_time = Time::now();
+        }
+        #ifdef PRINT_SENSOR
+            debug_print(
+                "sensor_ir: %d sensor_bumper: %d\n", 
+                (int) Roomba::sensor_ir, 
+                (int) Roomba::sensor_bumper
+            );
+        #endif
+    }
     return true;
 }
 
@@ -35,12 +47,12 @@ bool task_mode_switch_fn(Task_t * task) {
     if (Roomba::state == Move_State) {
         Roomba::state = Still_State;
         #ifdef PRINT_STATE
-            debug_print("state: Still_State");
+            debug_print("state: Still_State\n");
         #endif
     } else {
         Roomba::state = Move_State;
         #ifdef PRINT_STATE
-            debug_print("state: Move_State");
+            debug_print("state: Move_State\n");
         #endif
     }
     Roomba::play_song(0);
@@ -50,24 +62,36 @@ bool task_mode_switch_fn(Task_t * task) {
 bool task_control_fn(Task_t * task) {
     
     // Check if we've been killed
-    // if (photocell_hit()) {
-    //     #ifdef PRINT_DEATH
-    //         debug_print("I am dead now.");
-    //     #endif
-    //     // maybe create a shut down task...
-    //     // cleanup();
-    //     set_laser(OFF);
-    //     return false;
-    // }
+    if (photocell_hit()) {
+        #ifdef PRINT_DEATH
+            debug_print("I am dead now.");
+        #endif
+        // maybe create a shut down task...
+        // cleanup();
+        set_laser(OFF);
+        return false;
+    }
     
-    // Receive
+    if (override_control && Roomba::state == Move_State) {
+        if (override_time >= MAX_OVERRIDE_TIME) {
+            override_control = false;
+        } else {
+            i64 now = Time::now();
+            override_time += now - override_last_time;
+            override_last_time = now;
+            Roomba::send_command(0, Q78_to_int(STICK_M_MAX_Y));
+        }
+    }
+    
     Message_t * current_message = Message::receive((Message_t *) task->state);
     
-    // Control
     if (current_message) {
+        // debug_print("here\n");
         map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
         map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
-        Roomba::send_command(current_message->m_x, current_message->m_y);
+        if (!override_control) {
+            Roomba::send_command(current_message->m_x, current_message->m_y);
+        }
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
     }
@@ -82,8 +106,6 @@ int main() {
     init_laser();
     init_servo_pan();
     init_servo_tilt();
-    
-    // set_laser(ON);  // for testing
     
     // Initialize serial ports
     Serial1.begin(SERIAL_BAUD);

@@ -12,7 +12,7 @@ namespace Roomba {
 
     static int serial_num = 0;
     static int brc_pin = 0;
-    bool initialized = true;
+    static bool initialized = true;
     
     //
     // Private Function Prototypes
