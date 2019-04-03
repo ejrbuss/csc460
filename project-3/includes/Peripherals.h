@@ -3,6 +3,8 @@
 #include "Servo.h"
 #include "Compute.h"
 #include "LiquidCrystal.h"
+#include "RTOS.h"
+
 
 #ifndef PERIPHERALS_H
 #define PERIPHERALS_H
@@ -132,6 +134,6 @@ void reset_photocell_timer();
 void stop_photocell_timer();
 void photocell_timer_init();
 void init_photocell();
-int photocell_hit();
+bool photocell_hit();
 
 #endif /* PERIPHERALS_H */
