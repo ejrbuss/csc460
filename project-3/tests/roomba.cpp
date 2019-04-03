@@ -92,8 +92,8 @@ bool task_control_fn(Task_t * task) {
         if (!override_control) {
             debug_print("m_x: %d, m_y: %d\n", (int) current_message->m_x, (int) current_message->m_y);
             // Roomba::move(
-            //     ((float) current_message->m_x) / Q78_to_int(STICK_M_MAX_X),
-            //     ((float) current_message->m_y) / Q78_to_int(STICK_M_MAX_Y)
+            //     ((float) current_message->m_x) / STICK_M_MAX_X,
+            //     ((float) current_message->m_y) / STICK_M_MAX_Y
             //     // Q78_to_float( Q78_div(Q78(current_message->m_x), STICK_M_MAX_X)),
             //     // Q78_to_float(-Q78_div(Q78(current_message->m_y), STICK_M_MAX_Y))
             // );
