@@ -80,7 +80,7 @@ bool task_control_fn(Task_t * task) {
             i64 now = Time::now();
             override_time += now - override_last_time;
             override_last_time = now;
-            Roomba::move(0, 1);
+            Roomba::move(0.0, -1.0);
         }
     }
     
