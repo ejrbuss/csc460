@@ -49,6 +49,8 @@ LiquidCrystal init_lcd() {
 //
 
 i8 sample_stick_u_x() {
+    return (analogRead(STICK_U_PIN_X) / STICK_SCALE) - STICK_U_OFFSET_X;
+    /*
     static float rolling_x = 0;
     float sample = (analogRead(STICK_U_PIN_X) / STICK_SCALE) - STICK_U_OFFSET_X;
     rolling_x = sample * STICK_LFP_FACTOR + (rolling_x * (1.0 - STICK_LFP_FACTOR));
@@ -59,9 +61,12 @@ i8 sample_stick_u_x() {
         x = clamp(x - STICK_U_DEADZONE, 0, STICK_U_MAX_X);
     }
     return x;
+    */
 }
 
 i8 sample_stick_u_y() {
+    return (analogRead(STICK_U_PIN_Y) / STICK_SCALE) - STICK_U_OFFSET_Y;
+    /*
     static float rolling_y = 0;
     float sample = (analogRead(STICK_U_PIN_Y) / STICK_SCALE) - STICK_U_OFFSET_Y;
     rolling_y = sample * STICK_LFP_FACTOR + (rolling_y * (1.0 - STICK_LFP_FACTOR));
@@ -72,6 +77,7 @@ i8 sample_stick_u_y() {
         y = clamp(y - STICK_U_DEADZONE, 0, STICK_U_MAX_Y);
     }
     return y;
+    */
 }
 
 /*
@@ -121,6 +127,8 @@ int stick_u_down() {
 //
 
 i8 sample_stick_m_x() {
+    return (analogRead(STICK_M_PIN_X) / STICK_SCALE) - STICK_M_OFFSET_X;
+    /*
     static float rolling_x = 0;
     float sample = (analogRead(STICK_M_PIN_X) / STICK_SCALE) - STICK_M_OFFSET_X;
     rolling_x = sample * STICK_LFP_FACTOR + (rolling_x * (1.0 - STICK_LFP_FACTOR));
@@ -131,9 +139,12 @@ i8 sample_stick_m_x() {
         x = clamp(x - STICK_M_DEADZONE, 0, STICK_M_MAX_X);
     }
     return x;
+    */
 }
 
 i8 sample_stick_m_y() {
+    return (analogRead(STICK_M_PIN_Y) / STICK_SCALE) - STICK_M_OFFSET_Y;
+    /*
     static float rolling_y = 0;
     float sample = (analogRead(STICK_M_PIN_Y) / STICK_SCALE) - STICK_M_OFFSET_Y;
     rolling_y = sample * STICK_LFP_FACTOR + (rolling_y * (1.0 - STICK_LFP_FACTOR));
@@ -144,6 +155,7 @@ i8 sample_stick_m_y() {
         y = clamp(y - STICK_M_DEADZONE, 0, STICK_M_MAX_Y);
     }
     return y;
+    */
 }
 
 /*
