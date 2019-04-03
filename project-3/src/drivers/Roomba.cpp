@@ -94,7 +94,8 @@ namespace Roomba {
     }
 
     void move(float x, float y) {
-
+        RTOS::debug_print("x: %d, y: %d\n", (int) x * 1000, (int) y * 1000);
+        
         int radius = x * MAX_TURN_RADIUS;
         radius = MAX_TURN_RADIUS - radius;
         if (radius == 0) {

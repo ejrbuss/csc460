@@ -49,10 +49,12 @@ int main() {
     
     RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
     
-    task_sample->period_ms = 32;
+    task_sample->period_ms = 80; //32;
     task_sample->state = (void *) &current_message;
     
     Serial.print("hello world\n");
+    delay(1000);
+    RTOS::debug_print("%d\n", Q78_to_int(STICK_M_MAX_X));
     delay(1000);
     
     RTOS::Task::dispatch(task_sample);

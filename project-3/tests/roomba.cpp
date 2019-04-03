@@ -28,7 +28,7 @@ bool task_get_sensor_data_fn(Task_t * task) {
     if (Roomba::state == Move_State) {
         Roomba::get_sensor_data();
         if (Roomba::sensor_ir || Roomba::sensor_bumper) {
-            override_control = true;
+            // override_control = true;
             override_time = 0;
             override_last_time = Time::now();
         }
@@ -90,10 +90,13 @@ bool task_control_fn(Task_t * task) {
         map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
         map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
         if (!override_control) {
-            Roomba::move(
-                Q78_to_float( Q78_div(Q78(current_message->m_x), STICK_M_MAX_X)),
-                Q78_to_float(-Q78_div(Q78(current_message->m_y), STICK_M_MAX_Y))
-            );
+            debug_print("m_x: %d, m_y: %d\n", (int) current_message->m_x, (int) current_message->m_y);
+            // Roomba::move(
+            //     ((float) current_message->m_x) / Q78_to_int(STICK_M_MAX_X),
+            //     ((float) current_message->m_y) / Q78_to_int(STICK_M_MAX_Y)
+            //     // Q78_to_float( Q78_div(Q78(current_message->m_x), STICK_M_MAX_X)),
+            //     // Q78_to_float(-Q78_div(Q78(current_message->m_y), STICK_M_MAX_Y))
+            // );
         }
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
@@ -125,7 +128,7 @@ int main() {
     }
         
     Task_t * task_control = Task::init("task_control", task_control_fn);
-    task_control->period_ms = 20;    
+    task_control->period_ms = 60; //20;    
     Task::dispatch(task_control);
 
     Task_t * task_mode_switch = Task::init("task_mode_switch", task_mode_switch_fn);
