@@ -94,26 +94,30 @@ int stick_u_down() {
 
 int sample_stick_m_x() {
     static Q78_t rolling_x = Q78(0);
-    Q78_t x = Q78((analogRead(STICK_M_PIN_X) - STICK_M_OFFSET_X) / STICK_SCALE);
+    static Q78_t sample_x  = Q78(0);
+    sample_x  = Q78((analogRead(STICK_M_PIN_X) - STICK_M_OFFSET_X) / STICK_SCALE);
+    rolling_x = Q78_lpf(sample_x, rolling_x, STICK_LFP_FACTOR);
+    int x     = Q78_to_int(rolling_x);
     if (x < 0) {
         x = clamp(x + STICK_M_DEADZONE, STICK_M_MIN_X, 0);
     } else if (x > 0) {
         x = clamp(x - STICK_M_DEADZONE, 0, STICK_M_MAX_X);
     }
-    rolling_x = Q78_lpf(x, rolling_x, STICK_LFP_FACTOR);
-    return Q78_to_int(rolling_x);
+    return x;
 }
 
 int sample_stick_m_y() {
     static Q78_t rolling_y = Q78(0);
-    Q78_t y = Q78((analogRead(STICK_M_PIN_Y) - STICK_M_OFFSET_Y) / STICK_SCALE);
+    static Q78_t sample_y  = Q78(0);
+    sample_y  = Q78((analogRead(STICK_M_PIN_Y) - STICK_M_OFFSET_Y) / STICK_SCALE);
+    rolling_y = Q78_lpf(sample_y, rolling_y, STICK_LFP_FACTOR);
+    int y     = Q78_to_int(rolling_y);
     if (y < 0) {
         y = clamp(y + STICK_M_DEADZONE, STICK_M_MIN_Y, 0);
     } else if (y > 0) {
         y = clamp(y - STICK_M_DEADZONE, 0, STICK_M_MAX_Y);
     }
-    rolling_y = Q78_lpf(y, rolling_y, STICK_LFP_FACTOR);
-    return Q78_to_int(rolling_y);
+    return y;
 }
 
 void stick_m_on_switch(void (*isr)()) {
