@@ -14,7 +14,6 @@
 // #define PRINT_SERVO
 #define PRINT_STATE
 #define PRINT_DEATH
-#define PRINT_ERROR
 
 using namespace RTOS;
 
@@ -51,6 +50,7 @@ bool task_get_sensor_data_fn(Task_t * task) {
 
 bool task_mode_switch_fn(Task_t * task) {
     if (Roomba::state == Roomba::Move_State) {
+        override_control = false;
         Roomba::state = Roomba::Still_State;
         Roomba::play_song(Roomba::Still_Song);
         #ifdef PRINT_STATE
@@ -120,6 +120,7 @@ bool task_control_fn(Task_t * task) {
             PTServo::control(servo_pan, current_message->u_x);
             PTServo::control(servo_tilt, current_message->u_y);
         #endif
+
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
     }
@@ -133,8 +134,6 @@ int main() {
 
     init_photocell();
     init_laser();
-    // init_servo_pan();
-    // init_servo_tilt();
     
     // Initialize serial ports
     bluetooth = &Serial1;
@@ -148,8 +147,6 @@ int main() {
     wait_a_moment();
     
     Roomba::init(&Serial2, BAUD_RATE_CHANGE_PIN);
-    // Roomba::init(2, BAUD_RATE_CHANGE_PIN);
-
         
     Task_t * task_control = Task::init("task_control", task_control_fn);
     task_control->period_ms = 60; // 20;    
