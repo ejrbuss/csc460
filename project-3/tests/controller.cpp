@@ -65,6 +65,8 @@ int main() {
     
     RTOS::init();
 
+    Serial.begin(9600);
+
     bluetooth = &Serial1;
     bluetooth->begin(BLUETOOTH_BAUD);
     stick_m   = Stick::init_stick_m();
@@ -95,7 +97,10 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
-        Trace::serial_trace(trace);
+        // Trace::serial_trace(trace);
+        if (trace->tag == Debug_Message) {
+            Serial.print(trace->debug.message);
+        }
     }
 
     bool error(Trace_t * trace) {

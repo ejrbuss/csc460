@@ -22,7 +22,6 @@
 #define LASER_PIN 52
 
 void init_laser();
-void toggle_laser();
 void set_laser(int on);
 
 //
@@ -72,7 +71,7 @@ void map_servo_tilt(int value, int min_value, int max_value);
 
 #define PHOTO_PIN 11
 
-#define PHOTO_HIT_THRESHOLD 600
+#define PHOTO_HIT_THRESHOLD 400
 
 void init_photocell();
 bool photocell_hit();

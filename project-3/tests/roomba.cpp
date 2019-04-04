@@ -10,7 +10,7 @@
 #define MAX_OVERRIDE_TIME    1000
 
 #define PRINT_SENSOR
-#define PRINT_XY
+// #define PRINT_XY
 #define PRINT_STATE
 #define PRINT_DEATH
 
@@ -103,10 +103,10 @@ bool task_control_fn(Task_t * task) {
         #endif
 
         if (!override_control) {
-            Roomba::move(current_message->m_x, current_message->m_y);
+            Roomba::move(current_message->u_x, -current_message->u_y);
         }
-        PTServo::control(servo_pan, current_message->u_x);
-        PTServo::control(servo_tilt, current_message->u_y);
+        PTServo::control(servo_pan, current_message->m_x);
+        PTServo::control(servo_tilt, current_message->m_y);
         // map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
         // map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
         set_laser(current_message->flags & MESSAGE_LASER);

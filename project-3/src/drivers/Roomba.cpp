@@ -7,8 +7,8 @@
 #define SENSOR_BUMPER 7
 #define SENSOR_IR     13
 
-#define MAX_SPEED       200
-#define TURN_SPEED      100
+#define MAX_SPEED       250
+#define TURN_SPEED      150
 #define MAX_TURN_RADIUS 32768
 
 #define HIGH_BYTE(x) (x >> 8)

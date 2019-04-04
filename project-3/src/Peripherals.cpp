@@ -56,8 +56,13 @@ bool photocell_hit() {
     static i64 hit_time = 0;
     static i64 last     = 0;
     static bool last_on = false;
-
-    bool on = analogRead(PHOTO_PIN) >= PHOTO_HIT_THRESHOLD;
+    static int rolling_avg = 0;
+    
+    int sample = analogRead(PHOTO_PIN);
+    rolling_avg = sample * 0.2 + rolling_avg * 0.8;
+    // debug_print("sample: %d, \tavg: %d\n", sample, rolling_avg);
+    
+    bool on = rolling_avg >= PHOTO_HIT_THRESHOLD;
 
     if (hit_time > MAX_HIT_TIME) {
         return true;
