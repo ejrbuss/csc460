@@ -7,7 +7,7 @@
 #define SENSOR_BUMPER 7
 #define SENSOR_IR     13
 
-#define MAX_SPEED       250
+#define MAX_SPEED       300
 #define TURN_SPEED      150
 #define MAX_TURN_RADIUS 32768
 

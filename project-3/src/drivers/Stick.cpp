@@ -1,6 +1,6 @@
 #include "Stick.h"
 
-#define LPF_FACTOR 50 // As a percent between 1 and 100
+#define LPF_FACTOR 100 // As a percent between 1 and 100
 
 namespace Stick {
 
@@ -16,7 +16,7 @@ namespace Stick {
         stick_u->pin_sw    = 51;
         stick_u->offset_x  = 506;
         stick_u->offset_y  = 506;
-        stick_u->deadzone  = 50;
+        stick_u->deadzone  = 100;
         stick_u->max_x     = stick_u->offset_x - stick_u->deadzone;
         stick_u->max_y     = stick_u->offset_y - stick_u->deadzone;
         stick_u->rolling_x = 0;

@@ -7,12 +7,14 @@
 
 #define BLUETOOTH_BAUD       9600
 #define BAUD_RATE_CHANGE_PIN 30
-#define MAX_OVERRIDE_TIME    1000
+#define MAX_OVERRIDE_TIME    250
 
-#define PRINT_SENSOR
+// #define PRINT_SENSOR
 // #define PRINT_XY
+// #define PRINT_SERVO
 #define PRINT_STATE
 #define PRINT_DEATH
+#define PRINT_ERROR
 
 using namespace RTOS;
 
@@ -103,12 +105,21 @@ bool task_control_fn(Task_t * task) {
         #endif
 
         if (!override_control) {
-            Roomba::move(current_message->u_x, -current_message->u_y);
+            Roomba::move(current_message->m_x, -current_message->m_y);
         }
-        PTServo::control(servo_pan, current_message->m_x);
-        PTServo::control(servo_tilt, current_message->m_y);
-        // map_servo_pan(current_message->u_x, 0, STICK_U_OFFSET_X);
-        // map_servo_tilt(-current_message->u_y, 0, STICK_U_OFFSET_Y);
+
+        #ifdef PRINT_SERVO
+            i16 pan_position  = PTServo::control(servo_pan, current_message->u_x);
+            i16 tilt_position = PTServo::control(servo_tilt, current_message->u_y);
+            debug_print(
+                "pan: %d\ttilt: %d\n",
+                (int) pan_position,
+                (int) tilt_position
+            );
+        #else
+            PTServo::control(servo_pan, current_message->u_x);
+            PTServo::control(servo_tilt, current_message->u_y);
+        #endif
         set_laser(current_message->flags & MESSAGE_LASER);
         current_message = NULL;
     }
@@ -149,7 +160,7 @@ int main() {
     Task::dispatch(task_mode_switch);
 
     Task_t * task_get_sensor_data = Task::init("task_get_sensor_data", task_get_sensor_data_fn);
-    task_get_sensor_data->period_ms = 600;
+    task_get_sensor_data->period_ms = 120;
     task_get_sensor_data->delay_ms  = 30;
     Task::dispatch(task_get_sensor_data);
     

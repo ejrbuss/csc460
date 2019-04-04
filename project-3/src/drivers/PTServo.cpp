@@ -6,31 +6,35 @@ namespace PTServo {
 
     PTServo_t * init_servo_pan() {
         PTServo_t * servo_pan = (PTServo_t *) RTOS::Memory::static_alloc("servo_pan", sizeof(PTServo_t));
-        servo_pan->last_call = 0; 
-        servo_pan->min       = 500;
-        servo_pan->max       = 2000;
-        servo_pan->speed     = 7;
-        servo_pan->position  = 1500;
+        servo_pan->last_call  = 0; 
+        servo_pan->min        = 500;
+        servo_pan->max        = 2000;
+        servo_pan->speed      = 7;
+        servo_pan->position   = 1500;
+        servo_pan->aservo     = Servo();
         servo_pan->aservo.attach(13);
+        servo_pan->aservo.writeMicroseconds(servo_pan->position);
         return servo_pan;
     }
 
     PTServo_t * init_servo_tilt() {
         PTServo_t * servo_tilt = (PTServo_t *) RTOS::Memory::static_alloc("servo_tilt", sizeof(PTServo_t));
-        servo_tilt->last_call = 0; 
-        servo_tilt->min       = 750;
-        servo_tilt->max       = 1250;
-        servo_tilt->speed     = 5;
-        servo_tilt->position  = 1000;
+        servo_tilt->last_call  = 0; 
+        servo_tilt->min        = 750;
+        servo_tilt->max        = 1250;
+        servo_tilt->speed      = 5;
+        servo_tilt->position   = 1000;
+        servo_tilt->aservo     = Servo();
         servo_tilt->aservo.attach(12);
+        servo_tilt->aservo.writeMicroseconds(servo_tilt->position);
         return servo_tilt;
     }
 
-    void control(PTServo_t * servo, i8 value) {
+    i16 control(PTServo_t * servo, i8 value) {
         // Time management (don't over turn the servo)
         i64 this_call = RTOS::Time::now();
         if (this_call - servo->last_call < DELAY) {
-            return;
+            return servo->position;
         }
         servo->last_call = this_call;
 
@@ -42,6 +46,7 @@ namespace PTServo {
         // Update the servo
         servo->aservo.writeMicroseconds(position);
         servo->position = position;
+        return position;
     }
 
 }

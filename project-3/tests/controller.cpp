@@ -8,6 +8,7 @@
 #define BLUETOOTH_BAUD     9600
 #define SERIAL_BUFFER_SIZE 256
 
+// #define SERIAL_MONITOR
 // #define PRINT_XY
 
 using namespace RTOS;
@@ -65,7 +66,9 @@ int main() {
     
     RTOS::init();
 
-    Serial.begin(9600);
+    #ifdef SERIAL_MONITOR
+        Serial.begin(9600);
+    #endif
 
     bluetooth = &Serial1;
     bluetooth->begin(BLUETOOTH_BAUD);
@@ -78,13 +81,13 @@ int main() {
     current_message.header = MESSAGE_HEADER;
     
     Task_t * task_sample = Task::init("task_sample", task_sample_fn);
-    task_sample->period_ms = 80; // 32;
+    task_sample->period_ms = 150; // 32;
     task_sample->delay_ms  = 100;
     task_sample->state = (void *) &current_message;
     Task::dispatch(task_sample);
 
     Task_t * task_forward_bluetooth = Task::init("task_forward_bluetooth", task_forward_bluetooth_fn);
-    task_forward_bluetooth->period_ms = task_sample->period_ms;
+    task_forward_bluetooth->period_ms = task_sample->period_ms / 5;
     task_forward_bluetooth->delay_ms  = task_sample->delay_ms + task_sample->period_ms / 2;
     Task::dispatch(task_forward_bluetooth);
 
@@ -97,10 +100,13 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
-        // Trace::serial_trace(trace);
-        if (trace->tag == Debug_Message) {
-            Serial.print(trace->debug.message);
-        }
+        #ifdef SERIAL_MONITOR
+            if (trace->tag == Debug_Message) {
+                Serial.print(trace->debug.message);
+            }
+        #else
+            Trace::serial_trace(trace);
+        #endif
     }
 
     bool error(Trace_t * trace) {

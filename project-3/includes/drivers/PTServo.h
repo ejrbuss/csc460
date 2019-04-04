@@ -20,7 +20,7 @@ struct PTServo_t {
 namespace PTServo {
     PTServo_t * init_servo_pan();
     PTServo_t * init_servo_tilt();
-    void control(PTServo_t * servo, i8 value);
+    i16 control(PTServo_t * servo, i8 value);
 }
 
 #endif /* SERVO_H */
