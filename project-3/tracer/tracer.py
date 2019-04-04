@@ -43,17 +43,17 @@ def main(args):
     global MAX_TRACES
     MAX_TRACES = args.max
     if (args.noweb):
-        trace_listener()
+        trace_listener(True)
     else:
         thread = Thread(target=trace_listener)
         thread.start()
         run(host='localhost', port=args.port, debug=args.debug)
         thread.join()
 
-def trace_listener():
+def trace_listener(nolog=False):
     with connect() as serial:
         try:
-            ti = trace_iter(serial)
+            ti = trace_iter(serial, nolog)
             print('[\n    ', end='', flush=True)
             first_trace = next(ti)
             print(dumps(first_trace), end='', flush=True)
@@ -85,14 +85,15 @@ def get_hardware_port():
         else:
             panic('Could not find port! Are you sure you ran `mekpie run`?')
 
-def trace_iter(serial):
+def trace_iter(serial, nolog):
     init_decoder(serial.read(1))
     trace_count = 0
     while True:
         trace = decode_trace(serial)
         if trace:
-            trace_count += 1
-            trace_log.append(trace)
+            if not nolog:
+                trace_count += 1
+                trace_log.append(trace)
             yield trace
             if trace.name == 'Debug_Message':
                 print(trace.message, end='', file=stderr, flush=True)

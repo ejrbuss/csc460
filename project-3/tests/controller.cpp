@@ -2,32 +2,59 @@
 
 #include <RTOS.h>
 #include "Message.h"
+#include "Stick.h"
 #include "Peripherals.h"
 
-#define SERIAL_BAUD 9600
+#define BLUETOOTH_BAUD     9600
+#define SERIAL_BUFFER_SIZE 256
+
+// #define PRINT_XY
 
 using namespace RTOS;
 
-bool task_sample_fn(RTOS::Task_t * task) {
-    // while (Serial1.available()) {
-    //     debug_print("%c", Serial1.read());
-    //}
+static HardwareSerial * bluetooth;
+static Stick_t * stick_m;
+static Stick_t * stick_u;
+
+bool task_forward_bluetooth_fn(Task_t * task) {
+    static char serial_buffer[SERIAL_BUFFER_SIZE + 1];
+
+    if (bluetooth->available()) {
+        i16 n = min(bluetooth->available(), SERIAL_BUFFER_SIZE);
+        i16 i;
+        for (i = 0; i < n; i++) {
+            serial_buffer[i] = bluetooth->read();
+        }
+        serial_buffer[i] = 0;
+        debug_print(serial_buffer);
+    }
+    return true;
+}
+
+bool task_sample_fn(Task_t * task) {
     
     Message_t * current_message = (Message_t *) task->state;
-    current_message->u_x   = sample_stick_u_x();
-    current_message->u_y   = sample_stick_u_y();
-    current_message->m_x   = sample_stick_m_x();
-    current_message->m_y   = sample_stick_m_y();
-    current_message->flags = stick_u_down() ? MESSAGE_LASER : 0;
+    current_message->u_x   = Stick::x(stick_u);
+    current_message->u_y   = Stick::y(stick_u);
+    current_message->m_x   = Stick::x(stick_m);
+    current_message->m_y   = Stick::y(stick_m);
+    current_message->flags = Stick::sw(stick_m) ? MESSAGE_LASER : 0;
 
-    RTOS::debug_print("u_x: %d u_y: %d\n", (int) current_message->u_x, (int) current_message->u_y);
-    RTOS::debug_print("m_x: %d m_y: %d\n", (int) current_message->m_x, (int) current_message->m_y);
+    #ifdef PRINT_XY
+        debug_print(
+            "m_x = %d m_y = %d u_x = %d u_y = %d\n",
+            (int) current_message->m_x,
+            (int) current_message->m_y,
+            (int) current_message->u_x,
+            (int) current_message->u_y
+        );
+    #endif
     
     // send the message
     u8 * buffer = (u8 *) current_message;
     u16 i;
     for (i = 0; i < sizeof(Message_t); i++) {
-        Serial1.write(buffer[i]);
+        bluetooth->write(buffer[i]);
     }
     
     task->state = (void *) current_message;
@@ -35,27 +62,30 @@ bool task_sample_fn(RTOS::Task_t * task) {
 }
 
 int main() {
-    RTOS::init();
-    init_stick_u_sw();
     
-    Serial1.begin(SERIAL_BAUD);
-    delay(100);
+    RTOS::init();
+
+    bluetooth = &Serial1;
+    bluetooth->begin(BLUETOOTH_BAUD);
+    stick_m   = Stick::init_stick_m();
+    stick_u   = Stick::init_stick_u();
     
     Message_t current_message;
     
     // We only set this once
     current_message.header = MESSAGE_HEADER;
     
-    RTOS::Task_t * task_sample = RTOS::Task::init("task_sample", task_sample_fn);
-    
-    task_sample->period_ms = 500; // v80; //32;
+    Task_t * task_sample = Task::init("task_sample", task_sample_fn);
+    task_sample->period_ms = 80; // 32;
+    task_sample->delay_ms  = 100;
     task_sample->state = (void *) &current_message;
-    
-    delay(1000);
-    RTOS::debug_print("%d\n", Q78_to_int(STICK_M_MAX_X));
-    delay(1000);
-    
-    RTOS::Task::dispatch(task_sample);
+    Task::dispatch(task_sample);
+
+    Task_t * task_forward_bluetooth = Task::init("task_forward_bluetooth", task_forward_bluetooth_fn);
+    task_forward_bluetooth->period_ms = task_sample->period_ms;
+    task_forward_bluetooth->delay_ms  = task_sample->delay_ms + task_sample->period_ms / 2;
+    Task::dispatch(task_forward_bluetooth);
+
     RTOS::dispatch();
 
     return 0;
@@ -66,10 +96,6 @@ namespace UDF {
 
     void trace(Trace_t * trace) {
         Trace::serial_trace(trace);
-        if (trace->tag == Debug_Message) {
-            // Serial.print(trace->debug.message);
-        }
-        return;
     }
 
     bool error(Trace_t * trace) {

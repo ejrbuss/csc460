@@ -8,7 +8,7 @@
 //
 
 // How much consumable memory the RTOS should provide
-#define RTOS_VIRTUAL_HEAP 2048
+#define RTOS_VIRTUAL_HEAP 3048
 
 // The maximum number of definable event. Must be 8, 16, 32, or 64.
 #define RTOS_MAX_EVENTS 64

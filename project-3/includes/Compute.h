@@ -23,5 +23,4 @@ Q78_t Q78_lpf(Q78_t sample, Q78_t average, Q78_t factor);
 
 int clamp(int value, int min_value, int max_value);
 
-
 #endif /* COMPUTE_H */

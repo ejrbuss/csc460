@@ -36,6 +36,9 @@ typedef signed int       i16;
 typedef signed long      i32;
 typedef signed long long i64;
 
+typedef float  f32;
+typedef double f64;
+
 #include "Conf.h"
 #include "CheckConf.h"
 
