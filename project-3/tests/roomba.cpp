@@ -170,7 +170,7 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
-        Trace::serial_trace(trace);
+        // Trace::serial_trace(trace);
         if (trace->tag == Debug_Message) {
             bluetooth->print(trace->debug.message);
         }

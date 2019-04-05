@@ -69,7 +69,7 @@ void map_servo_tilt(int value, int min_value, int max_value);
 // PHOTOCELL
 //
 
-#define PHOTO_PIN 11
+#define PHOTO_PIN 44 //11
 
 #define PHOTO_HIT_THRESHOLD 400
 
