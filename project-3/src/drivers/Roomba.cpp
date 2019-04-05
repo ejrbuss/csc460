@@ -53,17 +53,17 @@ namespace Roomba {
         digitalWrite(brc_pin, HIGH);        
 
         //Set baud rate by togling the brc pin 3 times.
-        delay(2500);
+        RTOS::Time::delay(2500);
         digitalWrite(brc_pin, LOW);
-        delay(300);
+        RTOS::Time::delay(300);
         digitalWrite(brc_pin, HIGH);
-        delay(300);
+        RTOS::Time::delay(300);
         digitalWrite(brc_pin, LOW);
-        delay(300);
+        RTOS::Time::delay(300);
         digitalWrite(brc_pin, HIGH);
-        delay(300);
+        RTOS::Time::delay(300);
         digitalWrite(brc_pin, LOW);
-        delay(300);
+        RTOS::Time::delay(300);
         digitalWrite(brc_pin, HIGH);    
 
         roomba_serial->end();
@@ -71,7 +71,7 @@ namespace Roomba {
 
         //Power on
         roomba_serial->write(START);
-        delay(200);
+        RTOS::Time::delay(200);
         roomba_serial->write(SAFE);
 
         u8 move_song_notes[]  = { 67, 25 };

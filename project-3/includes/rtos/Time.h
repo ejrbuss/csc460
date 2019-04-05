@@ -51,6 +51,13 @@ namespace Time {
      */
     void idle(i64 from, i64 time);
 
+    /**
+     * Delays for a set period of time. (Busy waits).
+     * 
+     * @param i64 the time to idle for
+     */
+    void delay(i64 time);
+
 }}
 
 #endif /* RTOS_TIME_H */

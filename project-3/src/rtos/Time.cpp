@@ -84,4 +84,11 @@ namespace Time {
         #endif
     }
 
+    void delay(i64 time) {
+        i64 now_time = now();
+        while(now() - now_time < time) {
+            idle_mode();
+        }
+    }
+
 }}

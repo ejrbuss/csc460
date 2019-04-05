@@ -25,10 +25,6 @@ static i64 override_last_time = 0;
 static PTServo_t * servo_pan;
 static PTServo_t * servo_tilt;
 
-void wait_a_moment() {
-    delay(100);
-}
-
 bool task_get_sensor_data_fn(Task_t * task) {
     if (Roomba::state == Roomba::Move_State) {
         Roomba::Sensors::update();
@@ -134,6 +130,9 @@ int main() {
 
     init_photocell();
     init_laser();
+
+    // Might help with twitchy Servo
+    TIMSK0 = 0;
     
     // Initialize serial ports
     bluetooth = &Serial1;
@@ -144,21 +143,22 @@ int main() {
     // Clear any messages in the bluetooth buffer
     while (bluetooth->available()) { bluetooth->read(); }
     
-    wait_a_moment();
     
     Roomba::init(&Serial2, BAUD_RATE_CHANGE_PIN);
         
     Task_t * task_control = Task::init("task_control", task_control_fn);
     task_control->period_ms = 60; // 20;    
+    task_control->delay_ms  = 100;
     Task::dispatch(task_control);
 
     Task_t * task_mode_switch = Task::init("task_mode_switch", task_mode_switch_fn);
     task_mode_switch->period_ms = 30 * 1000;
+    task_mode_switch->delay_ms  = 100;
     Task::dispatch(task_mode_switch);
 
     Task_t * task_get_sensor_data = Task::init("task_get_sensor_data", task_get_sensor_data_fn);
     task_get_sensor_data->period_ms = 120;
-    task_get_sensor_data->delay_ms  = 30;
+    task_get_sensor_data->delay_ms  = 130;
     Task::dispatch(task_get_sensor_data);
     
     RTOS::dispatch();

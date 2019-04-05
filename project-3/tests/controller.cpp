@@ -9,7 +9,7 @@
 #define SERIAL_BUFFER_SIZE 256
 
 // #define SERIAL_MONITOR
-// #define PRINT_XY
+#define PRINT_XY
 
 using namespace RTOS;
 
@@ -43,11 +43,12 @@ bool task_sample_fn(Task_t * task) {
 
     #ifdef PRINT_XY
         debug_print(
-            "m_x = %d m_y = %d u_x = %d u_y = %d\n",
+            "m_x = %d m_y = %d u_x = %d u_y = %d flags = %d\n",
             (int) current_message->m_x,
             (int) current_message->m_y,
             (int) current_message->u_x,
-            (int) current_message->u_y
+            (int) current_message->u_y,
+            (int) current_message->flags
         );
     #endif
     
