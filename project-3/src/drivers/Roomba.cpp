@@ -4,8 +4,10 @@
 
 #include "Roomba.h"
 
-#define SENSOR_BUMPER 7
-#define SENSOR_IR     13
+#define SENSOR_BUMPER   7
+#define SENSOR_IR       13
+#define SENSOR_POWER    25
+#define SENSOR_CAPACITY 26
 
 #define MAX_SPEED       300
 #define TURN_SPEED      150
@@ -53,17 +55,17 @@ namespace Roomba {
         digitalWrite(brc_pin, HIGH);        
 
         //Set baud rate by togling the brc pin 3 times.
-        RTOS::Time::delay(2500);
+        delay(2500);
         digitalWrite(brc_pin, LOW);
-        RTOS::Time::delay(300);
+        delay(300);
         digitalWrite(brc_pin, HIGH);
-        RTOS::Time::delay(300);
+        delay(300);
         digitalWrite(brc_pin, LOW);
-        RTOS::Time::delay(300);
+        delay(300);
         digitalWrite(brc_pin, HIGH);
-        RTOS::Time::delay(300);
+        delay(300);
         digitalWrite(brc_pin, LOW);
-        RTOS::Time::delay(300);
+        delay(300);
         digitalWrite(brc_pin, HIGH);    
 
         roomba_serial->end();
@@ -71,13 +73,15 @@ namespace Roomba {
 
         //Power on
         roomba_serial->write(START);
-        RTOS::Time::delay(200);
+        delay(200);
         roomba_serial->write(SAFE);
 
         u8 move_song_notes[]  = { 67, 25 };
         load_song(Move_Song, 1, move_song_notes);
         u8 still_song_notes[] = { 60, 25 };
         load_song(Still_Song, 1, still_song_notes);
+        u8 death_song_notes[] = { 65, 25, 62, 25 };
+        load_song(Death_Song, 2, death_song_notes);
     }
 
     void move(i8 x, i8 y) {
@@ -126,8 +130,10 @@ namespace Roomba {
     }
 
     namespace Sensors {
-        bool ir     = false;
-        bool bumper = false;
+        bool ir      = false;
+        bool bumper  = false;
+        i16 power    = 0;
+        i16 capacity = 0;
         
         void update() {
             static bool waiting_for_data = false;
@@ -138,8 +144,8 @@ namespace Roomba {
                 roomba_serial->write(SENSOR_BUMPER);
                 waiting_for_data = true;
             } else if (roomba_serial->available() >= 2) {
-                ir     = roomba_serial->read() ? true : false;
-                bumper = roomba_serial->read() & 0b11 ? true : false;
+                ir        = roomba_serial->read() ? true : false;
+                bumper    = roomba_serial->read() & 0b11 ? true : false;
                 waiting_for_data = false;
             }
         }

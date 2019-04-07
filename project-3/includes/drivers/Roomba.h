@@ -15,6 +15,7 @@ namespace Roomba {
     typedef enum Song_t {
         Move_Song,
         Still_Song,
+        Death_Song,
     } Song_t;
 
     typedef enum Roomba_State_t {
@@ -32,6 +33,8 @@ namespace Roomba {
     namespace Sensors {
         extern bool ir;
         extern bool bumper;
+        extern i16 power;
+        extern i16 capacity;
         void update();
     }
     

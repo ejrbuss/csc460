@@ -35,9 +35,11 @@ bool task_get_sensor_data_fn(Task_t * task) {
         }
         #ifdef PRINT_SENSOR
             debug_print(
-                "Roomba::Sensors::ir = %d\nRoomba::Sensors::bumper = %d\n",
+                "Roomba::Sensors::ir = %d\nRoomba::Sensors::bumper = %d\nRoomba:Sensors::power = %d\nRoomba::Sensors::capacity = %d\n",
                 (int) Roomba::Sensors::ir, 
-                (int) Roomba::Sensors::bumper
+                (int) Roomba::Sensors::bumper,
+                (int) Roomba::Sensors::power,
+                (int) Roomba::Sensors::capacity
             );
         #endif
     }
@@ -70,7 +72,7 @@ bool task_control_fn(Task_t * task) {
         #ifdef PRINT_DEATH
             debug_print("I am dead now.");
         #endif
-        // maybe create a shut down task...
+        Roomba::play_song(Roomba::Death_Song);
         set_laser(OFF);
         return false;
     }
@@ -130,9 +132,6 @@ int main() {
 
     init_photocell();
     init_laser();
-
-    // Might help with twitchy Servo
-    TIMSK0 = 0;
     
     // Initialize serial ports
     bluetooth = &Serial1;
@@ -142,6 +141,8 @@ int main() {
     
     // Clear any messages in the bluetooth buffer
     while (bluetooth->available()) { bluetooth->read(); }
+
+    delay(100);
     
     
     Roomba::init(&Serial2, BAUD_RATE_CHANGE_PIN);
@@ -170,10 +171,12 @@ namespace RTOS {
 namespace UDF {
 
     void trace(Trace_t * trace) {
-        // Trace::serial_trace(trace);
+        Trace::serial_trace(trace);
+        /*
         if (trace->tag == Debug_Message) {
             bluetooth->print(trace->debug.message);
         }
+        */
     }
 
     bool error(Trace_t * trace) {

@@ -9,7 +9,7 @@
 #define SERIAL_BUFFER_SIZE 256
 
 // #define SERIAL_MONITOR
-#define PRINT_XY
+// #define PRINT_XY
 
 using namespace RTOS;
 

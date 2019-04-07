@@ -9,7 +9,7 @@ namespace PTServo {
         servo_pan->last_call  = 0; 
         servo_pan->min        = 500;
         servo_pan->max        = 2000;
-        servo_pan->speed      = 7;
+        servo_pan->speed      = 15;
         servo_pan->position   = 1500;
         servo_pan->aservo     = Servo();
         servo_pan->aservo.attach(13);
@@ -22,8 +22,8 @@ namespace PTServo {
         servo_tilt->last_call  = 0; 
         servo_tilt->min        = 750;
         servo_tilt->max        = 1250;
-        servo_tilt->speed      = 5;
-        servo_tilt->position   = 1000;
+        servo_tilt->speed      = 10;
+        servo_tilt->position   = 1250;
         servo_tilt->aservo     = Servo();
         servo_tilt->aservo.attach(12);
         servo_tilt->aservo.writeMicroseconds(servo_tilt->position);
